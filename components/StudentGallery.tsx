@@ -20,29 +20,29 @@ const GALLERY_ITEMS: GalleryItem[] = [
 
 export const StudentGallery: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
       {GALLERY_ITEMS.map((item) => (
-        <div key={item.id} className="group relative bg-white p-4 rounded-xl shadow-lg border border-stone-100 transition-all hover:-translate-y-2 hover:shadow-2xl">
-          <div className="aspect-[3/4] overflow-hidden rounded-lg bg-stone-50 mb-4 relative">
+        <div key={item.id} className="group cursor-pointer">
+          <div className="relative aspect-[3/4] overflow-hidden rounded-[2.5rem] bg-stone-100 shadow-xl transition-all duration-700 group-hover:shadow-2xl group-hover:-translate-y-4">
             <img 
               src={item.imageUrl} 
               alt={item.title} 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" 
             />
-            <div className="absolute inset-0 bg-ink-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span className="bg-white/90 text-ink-black px-6 py-2 rounded-full font-bold text-sm shadow-xl">查看原图</span>
-            </div>
-            <div className="absolute top-4 left-4">
-              <span className="bg-vermilion text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm tracking-widest uppercase">
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+            
+            <div className="absolute top-8 left-8">
+              <span className="bg-white/90 backdrop-blur-md text-ink-black text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg tracking-widest uppercase">
                 {item.category}
               </span>
             </div>
-          </div>
-          <div className="px-2">
-            <h5 className="font-bold text-lg serif-font text-ink-black mb-1">{item.title}</h5>
-            <div className="flex justify-between items-center text-sm text-stone-500 font-medium">
-              <span>{item.student}</span>
-              <span className="text-lotus-green">2024年春季</span>
+            
+            <div className="absolute bottom-8 left-8 right-8 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+               <h5 className="font-bold text-2xl serif-font mb-2 leading-tight">{item.title}</h5>
+               <div className="flex items-center gap-3 text-white/70 text-sm font-medium">
+                 <span className="w-6 h-px bg-white/30"></span>
+                 <span>{item.student}</span>
+               </div>
             </div>
           </div>
         </div>

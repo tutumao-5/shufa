@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>十里荷塘 | 书法工作室</title>
+    <title>十里荷塘 | 艺术书法工作室</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>
@@ -12,55 +12,115 @@
             theme: {
                 extend: {
                     colors: {
-                        'ink-black': '#2C2C2C',
-                        'paper-white': '#FCF9F2',
-                        'vermilion': '#C83C23',
-                        'lotus-green': '#5D7A68',
-                        'stone-gray': '#666666',
+                        'ink-black': '#1A1A1A',
+                        'paper-white': '#FAF7F0',
+                        'vermilion': '#B22222',
+                        'lotus-green': '#4A6741',
+                        'sage': '#E8EBE4',
+                        'gold': '#C5A059',
                     },
                     fontFamily: {
                         'serif': ['"Noto Serif SC"', 'serif'],
                         'sans': ['"Noto Sans SC"', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'slow-spin': 'spin 20s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
+        :root {
+            --cursor-size: 20px;
+        }
         body {
-            background-color: #FCF9F2;
-            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            background-color: #FAF7F0;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(74, 103, 65, 0.03) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(178, 34, 34, 0.02) 0, transparent 50%),
+                url('https://www.transparenttextures.com/patterns/handmade-paper.png');
             scroll-behavior: smooth;
+            cursor: none;
+        }
+        .brush-cursor {
+            width: var(--cursor-size);
+            height: var(--cursor-size);
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease-out, width 0.2s, height 0.2s;
+            mix-blend-mode: multiply;
+            filter: blur(1px);
+        }
+        .brush-cursor.active {
+            transform: scale(2);
+            background: rgba(178, 34, 34, 0.6);
         }
         .ink-spread {
             position: absolute;
-            background: radial-gradient(circle, rgba(44, 44, 44, 0.4) 0%, rgba(44, 44, 44, 0) 70%);
+            background: radial-gradient(circle, rgba(26, 26, 26, 0.3) 0%, rgba(26, 26, 26, 0) 70%);
             border-radius: 50%;
             pointer-events: none;
-            animation: ink-anim 3s ease-out forwards;
+            animation: ink-anim 4s cubic-bezier(0.1, 0, 0.3, 1) forwards;
         }
         @keyframes ink-anim {
-            0% { transform: scale(0); opacity: 0.8; }
-            100% { transform: scale(4); opacity: 0; }
+            0% { transform: scale(0); opacity: 0.6; filter: blur(2px); }
+            100% { transform: scale(5); opacity: 0; filter: blur(20px); }
         }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #FCF9F2; }
-        ::-webkit-scrollbar-thumb { background: #5D7A68; border-radius: 3px; }
+        .serif-vertical {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+        .glass-nav {
+            backdrop-filter: blur(12px) saturate(180%);
+            background-color: rgba(250, 247, 240, 0.7);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #FAF7F0; }
+        ::-webkit-scrollbar-thumb { background: #B22222; border-radius: 10px; }
+        
+        .section-heading::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 2px;
+            background: #B22222;
+            margin: 1rem auto;
+        }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "recharts": "https://esm.sh/recharts@^3.7.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4"
-  }
-}
-</script>
+    <script type="importmap">
+    {
+      "imports": {
+        "recharts": "https://esm.sh/recharts@^3.7.0",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4"
+      }
+    }
+    </script>
 </head>
-<body class="font-sans antialiased text-ink-black">
+<body class="font-sans antialiased text-ink-black overflow-x-hidden">
+    <div id="cursor" class="brush-cursor hidden md:block"></div>
     <div id="root"></div>
-     <script type="module" src="/index.tsx"></script>
-GEMINI_API_KEY
+    <script>
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        document.addEventListener('mousedown', () => cursor.classList.add('active'));
+        document.addEventListener('mouseup', () => cursor.classList.remove('active'));
+    </script>
 </body>
 </html>
