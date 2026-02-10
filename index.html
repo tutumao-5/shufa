@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十里荷塘 | 书法工作室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ink-black': '#2C2C2C',
+                        'paper-white': '#FCF9F2',
+                        'vermilion': '#C83C23',
+                        'lotus-green': '#5D7A68',
+                        'stone-gray': '#666666',
+                    },
+                    fontFamily: {
+                        'serif': ['"Noto Serif SC"', 'serif'],
+                        'sans': ['"Noto Sans SC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FCF9F2;
+            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            scroll-behavior: smooth;
+        }
+        .ink-spread {
+            position: absolute;
+            background: radial-gradient(circle, rgba(44, 44, 44, 0.4) 0%, rgba(44, 44, 44, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ink-anim 3s ease-out forwards;
+        }
+        @keyframes ink-anim {
+            0% { transform: scale(0); opacity: 0.8; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #FCF9F2; }
+        ::-webkit-scrollbar-thumb { background: #5D7A68; border-radius: 3px; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4"
+  }
+}
+</script>
+</head>
+<body class="font-sans antialiased text-ink-black">
+    <div id="root"></div>
+</body>
+</html>
