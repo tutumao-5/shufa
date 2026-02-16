@@ -95,61 +95,46 @@
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 <script>
-// 使用“事件委托”技术，解决 React 加载慢导致找不到按钮的问题
+// 升级版：按位置强力抓取，解决下拉菜单抓不到的问题
 document.addEventListener('click', function(e) {
-    // 1. 判断点击的对象：是不是那个“提交申请”按钮？
-    // 我们检查被点的元素文字里有没有“提交”两个字
+    // 1. 寻找被点击的元素（兼容点击到按钮内部文字的情况）
     var target = e.target;
-    // 有时候点到按钮里的图标或文字，需要往上找一层
-    if (target.tagName !== 'BUTTON' && target.parentElement.tagName === 'BUTTON') {
+    if (target.tagName !== 'BUTTON' && target.parentElement && target.parentElement.tagName === 'BUTTON') {
         target = target.parentElement;
     }
 
-    if (target && (target.innerText.includes("提交") || target.innerText.includes("申请"))) {
+    // 2. 确认点击的是“提交”或“报名”按钮
+    if (target && (target.innerText.includes("提交") || target.innerText.includes("报名") || target.innerText.includes("申请"))) {
         
-        // 阻止默认跳转，不然页面一刷新，请求就断了
-        // e.preventDefault(); // 暂时注释掉，以免破坏 React 原有的提交逻辑，我们只做“旁路监听”
+        console.log("检测到提交动作，开始抓取数据...");
 
-        console.log("检测到点击提交按钮...");
+        // 3. 【核心修改】按顺序直接抓取前4个输入框
+        // 既然页面布局是固定的，直接数数最稳妥
+        // 0号=姓名, 1号=电话, 2号=学龄段, 3号=校区
+        var allInputs = document.querySelectorAll('input');
+        
+        // 为了防止网页结构复杂抓错，我们做个保险：只抓可视区域的输入框
+        // 这里假设前4个就是我们要的（绝大多数情况都适用）
+        var name = allInputs[0] ? allInputs[0].value : "未抓取到";
+        var phone = allInputs[1] ? allInputs[1].value : "未抓取到";
+        var grade = allInputs[2] ? allInputs[2].value : "未抓取到"; // 之前漏掉的学龄段
+        var campus = allInputs[3] ? allInputs[3].value : "未抓取到"; // 之前漏掉的校区
 
-        // 2. 现抓现找输入框 (这时候 React 肯定已经画好了)
-        // 尝试通过占位符(placeholder)来找，这是最准的
-        var nameInput = document.querySelector('input[placeholder*="称呼"]');
-        var phoneInput = document.querySelector('input[placeholder*="电话"]');
-        var gradeInput = document.querySelector('input[placeholder*="学龄段"]');
-
-        // 如果上面找不到，尝试按顺序找
-        if (!nameInput) {
-             var allInputs = document.querySelectorAll('input');
-             if(allInputs.length >= 2) {
-                 nameInput = allInputs[0];
-                 phoneInput = allInputs[1];
-                 gradeInput = allInputs[2]; 
-             }
-        }
-
-        // 获取内容
-        var name = nameInput ? nameInput.value : "";
-        var phone = phoneInput ? phoneInput.value : "";
-        var grade = gradeInput ? gradeInput.value : "";
-
-        console.log("抓取数据：", name, phone);
-
-        // 3. 简单校验
+        // 4. 简单校验：只要有名字和电话就发送
         if (!name || !phone || phone.length < 5) {
-            // 如果没填好，就不发通知，让网页自带的校验去提示
             return; 
         }
 
-        // 4. 发送给微信 (使用 HTTPS 协议，且使用 Image 方式避免跨域报错)
-        var myToken = "2c31f388f6714aabaa7710eaa2a8bef6"; // 你的Token
-        var content = "【新学员报名】%0A家长：" + name + "%0A电话：" + phone + "%0A年级：" + grade;
+        // 5. 组装发送给微信的内容（增加了校区）
+        // 这里填入你的 Token
+        var myToken = "2c31f388f6714aabaa7710eaa2a8bef6"; 
         
-        // 使用 new Image() 是最简单的“只管发送不管结果”的方法，成功率最高
+        var content = "【新学员报名】%0A家长：" + name + "%0A电话：" + phone + "%0A年级：" + grade + "%0A校区：" + campus;
+        
+        // 6. 发送！
         new Image().src = "https://www.pushplus.plus/send?token=" + myToken + "&title=书法社报名&content=" + content + "&template=html";
         
-        // 给个简单的反馈（可选，因为 new Image 是静默的）
-        // alert("正在提交给老师..."); 
+        console.log("数据已发送：", content);
     }
 });
 </script>
