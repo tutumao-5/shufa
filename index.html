@@ -95,66 +95,63 @@
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 <script>
-  // 1. 找到页面上的按钮和输入框
-  // 注意：这里假设你的输入框是按顺序排列的。如果不行，我们需要更精确的方法。
-  const allInputs = document.querySelectorAll('input'); 
-  const nameInput = allInputs[0]; // 第一个输入框（称呼）
-  const phoneInput = allInputs[1]; // 第二个输入框（电话）
-  const gradeInput = allInputs[2]; // 第三个输入框（学龄段）
-  const submitBtn = document.querySelector('.el-button--primary') || document.querySelector('button'); // 寻找提交按钮
+// 使用“事件委托”技术，解决 React 加载慢导致找不到按钮的问题
+document.addEventListener('click', function(e) {
+    // 1. 判断点击的对象：是不是那个“提交申请”按钮？
+    // 我们检查被点的元素文字里有没有“提交”两个字
+    var target = e.target;
+    // 有时候点到按钮里的图标或文字，需要往上找一层
+    if (target.tagName !== 'BUTTON' && target.parentElement.tagName === 'BUTTON') {
+        target = target.parentElement;
+    }
 
-  // 2. 给按钮添加点击事件
-  if(submitBtn) {
-    submitBtn.addEventListener('click', function(e) {
-      // 阻止按钮原本的“跳转”或“刷新”行为
-      e.preventDefault(); 
+    if (target && (target.innerText.includes("提交") || target.innerText.includes("申请"))) {
+        
+        // 阻止默认跳转，不然页面一刷新，请求就断了
+        // e.preventDefault(); // 暂时注释掉，以免破坏 React 原有的提交逻辑，我们只做“旁路监听”
 
-      // 获取填写的内容
-      const name = nameInput.value;
-      const phone = phoneInput.value;
-      const grade = gradeInput.value;
+        console.log("检测到点击提交按钮...");
 
-      // 简单检查有没有填
-      if (!name || !phone) {
-        alert("家长您好，请填写完整姓名和电话！");
-        return;
-      }
+        // 2. 现抓现找输入框 (这时候 React 肯定已经画好了)
+        // 尝试通过占位符(placeholder)来找，这是最准的
+        var nameInput = document.querySelector('input[placeholder*="称呼"]');
+        var phoneInput = document.querySelector('input[placeholder*="电话"]');
+        var gradeInput = document.querySelector('input[placeholder*="学龄段"]');
 
-      // 按钮变色，防止重复点
-      const originalText = submitBtn.innerText;
-      submitBtn.innerText = "提交中...";
-      submitBtn.style.opacity = "0.7";
+        // 如果上面找不到，尝试按顺序找
+        if (!nameInput) {
+             var allInputs = document.querySelectorAll('input');
+             if(allInputs.length >= 2) {
+                 nameInput = allInputs[0];
+                 phoneInput = allInputs[1];
+                 gradeInput = allInputs[2]; 
+             }
+        }
 
-      // 3. 准备发给微信的数据 (你的 Token 填在下面！)
-      const myToken = "2c31f388f6714aabaa7710eaa2a8bef6"; 
-      
-      const content = `家长姓名：${name}\n联系电话：${phone}\n孩子年级：${grade}`;
+        // 获取内容
+        var name = nameInput ? nameInput.value : "";
+        var phone = phoneInput ? phoneInput.value : "";
+        var grade = gradeInput ? gradeInput.value : "";
 
-      // 4. 发送！(通过 Cloudflare 转发或直接发送)
-      // 为了最简单，我们尝试直接发给 PushPlus (可能会有跨域问题，但先试试最简单的)
-      fetch(`http://www.pushplus.plus/send?token=${myToken}&title=书法社新报名&content=${encodeURIComponent(content)}&template=html`)
-        .then(response => response.json())
-        .then(data => {
-          if(data.code === 200) {
-            alert("报名成功！我们会尽快联系您。");
-            // 清空输入框
-            nameInput.value = "";
-            phoneInput.value = "";
-          } else {
-            alert("发送失败，请截图联系老师。");
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert("网络连接有点问题，请稍后再试。");
-        })
-        .finally(() => {
-          // 恢复按钮
-          submitBtn.innerText = originalText;
-          submitBtn.style.opacity = "1";
-        });
-    });
-  }
+        console.log("抓取数据：", name, phone);
+
+        // 3. 简单校验
+        if (!name || !phone || phone.length < 5) {
+            // 如果没填好，就不发通知，让网页自带的校验去提示
+            return; 
+        }
+
+        // 4. 发送给微信 (使用 HTTPS 协议，且使用 Image 方式避免跨域报错)
+        var myToken = "2c31f388f6714aabaa7710eaa2a8bef6"; // 你的Token
+        var content = "【新学员报名】%0A家长：" + name + "%0A电话：" + phone + "%0A年级：" + grade;
+        
+        // 使用 new Image() 是最简单的“只管发送不管结果”的方法，成功率最高
+        new Image().src = "https://www.pushplus.plus/send?token=" + myToken + "&title=书法社报名&content=" + content + "&template=html";
+        
+        // 给个简单的反馈（可选，因为 new Image 是静默的）
+        // alert("正在提交给老师..."); 
+    }
+});
 </script>
 </body>
 </html>
