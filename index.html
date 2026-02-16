@@ -96,62 +96,68 @@
     <script type="module" src="./index.tsx"></script>
 <script>
 // =================配置区域=================
-// 这是你之前提供的正确Token，不要改动
 const MY_TOKEN = "2c31f388f6714aabaa7710eaa2a8bef6"; 
 // =========================================
 
 document.addEventListener('click', function(e) {
-    // 1. 监听点击：只要用户点的按钮里包含“立即报名”这几个字
+    // 监听：点击了“立即报名”
     if (e.target && (e.target.innerText.includes("立即报名") || e.target.textContent.includes("立即报名"))) {
         
-        // 2. 抓取输入框内容（根据你截图中的文字查找）
-        // 我们用“placeholder”属性来定位，这样哪怕没有ID也能找到
-        var nameInput = document.querySelector('input[placeholder*="称呼"]');
-        var phoneInput = document.querySelector('input[placeholder*="电话"]');
-        var ageInput = document.querySelector('input[placeholder*="学龄段"]'); // 如果是下拉框可能需要调整，这里先按输入框处理
-        var campusInput = document.querySelector('input[placeholder*="校区"]');
+        // 【核心修改】策略升级：不找名字了，直接把网页上所有的“框”都抓出来
+        // 1. 抓取所有的 input (输入框) 和 select (下拉菜单)
+        var allInputs = Array.from(document.querySelectorAll('input, select'));
+        
+        // 2. 过滤掉不相关的（比如隐藏的、或者type是submit的按钮）
+        var validInputs = allInputs.filter(el => {
+            return el.type !== 'hidden' && el.type !== 'submit' && el.type !== 'button';
+        });
 
-        var name = nameInput ? nameInput.value : "未知姓名";
-        var phone = phoneInput ? phoneInput.value : "未知电话";
-        var age = ageInput ? ageInput.value : "未填学龄";
-        var campus = campusInput ? campusInput.value : "未填校区";
+        // 3. 按屏幕位置从上到下排序（确保第1个肯定是姓名，第2个是电话...）
+        validInputs.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
 
-        // 3. 简单检查：如果是误触或没填电话，不发送
-        if (phone.length < 5) {
-            console.log("电话为空，不发送通知");
+        // 调试：这行代码会弹窗告诉你它找到了几个框。
+        // 如果弹窗显示“找到 4 个输入框”，那就肯定能成功！
+        // alert("调试信息：找到了 " + validInputs.length + " 个填写框"); 
+
+        // 4. 按顺序赋值
+        // 第1个框 -> 姓名
+        var name = validInputs[0] ? validInputs[0].value : "未抓取到";
+        // 第2个框 -> 电话
+        var phone = validInputs[1] ? validInputs[1].value : "未抓取到";
+        // 第3个框 -> 学龄段 (尝试获取value，如果没有value就试试innerText)
+        var age = validInputs[2] ? (validInputs[2].value || validInputs[2].innerText) : "未抓取到";
+        // 第4个框 -> 校区
+        var campus = validInputs[3] ? (validInputs[3].value || validInputs[3].innerText) : "未抓取到";
+
+        // 5. 再次校验电话，防止误触
+        if (!phone || phone.length < 5) {
+            console.log("没填电话，不发送");
             return; 
         }
 
-        console.log("正在发送微信通知...");
+        console.log("准备发送：", name, phone, age, campus);
 
-        // 4. 发送请求给 PushPlus (使用 HTTPS 防止报错)
+        // 6. 发送给 PushPlus
         fetch('https://www.pushplus.plus/send', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 token: MY_TOKEN,
-                title: '【新学员报名】' + name,
+                title: '【新学员】' + name,
                 content: `
                     <h3>新学员报名信息：</h3>
                     <p><b>姓名：</b>${name}</p>
                     <p><b>电话：</b>${phone}</p>
                     <p><b>学龄段：</b>${age}</p>
-                    <p><b>校区：</b>${campus}</p>
-                    <p><b>时间：</b>${new Date().toLocaleString()}</p>
+                    <p><b>意向校区：</b>${campus}</p>
+                    <p><b>提交时间：</b>${new Date().toLocaleString()}</p>
                 `,
                 template: 'html'
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log("发送结果：", data);
-            // 这里可以加一行 alert("报名成功"); 如果你想弹窗提示的话
-        })
-        .catch(error => {
-            console.error("发送失败：", error);
-        });
+        .then(res => res.json())
+        .then(data => console.log("发送成功", data))
+        .catch(err => console.error("发送失败", err));
     }
 });
 </script>
