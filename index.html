@@ -95,66 +95,53 @@
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 <script>
-  // 1. 找到页面上的按钮和输入框
-  // 注意：这里假设你的输入框是按顺序排列的。如果不行，我们需要更精确的方法。
-  const allInputs = document.querySelectorAll('input'); 
-  const nameInput = allInputs[0]; // 第一个输入框（称呼）
-  const phoneInput = allInputs[1]; // 第二个输入框（电话）
-  const gradeInput = allInputs[2]; // 第三个输入框（学龄段）
-  const submitBtn = document.querySelector('.el-button--primary') || document.querySelector('button'); // 寻找提交按钮
+document.addEventListener('click', function(e) {
+    // 1. 监听点击：检查用户是否点击了“提交申请”这几个字
+    // 我们使用模糊匹配，只要按钮文字包含“提交申请”就算点中
+    if (e.target && (e.target.innerText.includes("提交申请") || e.target.value === "提交申请")) {
+        
+        // 2. 获取输入框的内容
+        // 我们通过“占位符(placeholder)”来精准找到那三个框，这样最不容易出错
+        var nameInput = document.querySelector('input[placeholder*="称呼"]');
+        var phoneInput = document.querySelector('input[placeholder*="电话"]');
+        var gradeInput = document.querySelector('input[placeholder*="学龄段"]');
 
-  // 2. 给按钮添加点击事件
-  if(submitBtn) {
-    submitBtn.addEventListener('click', function(e) {
-      // 阻止按钮原本的“跳转”或“刷新”行为
-      e.preventDefault(); 
+        // 如果找不到输入框（万一页面结构特殊），尝试另一种通用的抓取方式
+        if (!nameInput) {
+             var allInputs = document.querySelectorAll('input');
+             if(allInputs.length >= 2) {
+                 nameInput = allInputs[0];
+                 phoneInput = allInputs[1];
+                 gradeInput = allInputs[2]; // 可能为空
+             }
+        }
 
-      // 获取填写的内容
-      const name = nameInput.value;
-      const phone = phoneInput.value;
-      const grade = gradeInput.value;
+        var name = nameInput ? nameInput.value : "未填写";
+        var phone = phoneInput ? phoneInput.value : "未填写";
+        var grade = gradeInput ? gradeInput.value : "未填写";
 
-      // 简单检查有没有填
-      if (!name || !phone) {
-        alert("家长您好，请填写完整姓名和电话！");
-        return;
-      }
+        // 3. 简单校验：如果没填名字或电话，就不发通知（虽然网页自带校验，但我们双重保险）
+        if (name.length < 1 || phone.length < 5) {
+            // console.log("信息不完整，不发送推送");
+            return; 
+        }
 
-      // 按钮变色，防止重复点
-      const originalText = submitBtn.innerText;
-      submitBtn.innerText = "提交中...";
-      submitBtn.style.opacity = "0.7";
+        // ==========================================
+        // 【重要】请将下方引号里的内容换成你第一阶段获取的 Token
+        var myToken = "f74ba03ec3654d949da083dd9a0e1a03"; 
+        // ==========================================
 
-      // 3. 准备发给微信的数据 (你的 Token 填在下面！)
-      const myToken = "f74ba03ec3654d949da083dd9a0e1a03"; 
-      
-      const content = `家长姓名：${name}\n联系电话：${phone}\n孩子年级：${grade}`;
+        // 4. 准备发送给微信的文字内容
+        var content = "【新学员报名】%0A家长：" + name + "%0A电话：" + phone + "%0A年级：" + grade;
 
-      // 4. 发送！(通过 Cloudflare 转发或直接发送)
-      // 为了最简单，我们尝试直接发给 PushPlus (可能会有跨域问题，但先试试最简单的)
-      fetch(`https://www.pushplus.plus/send?token=${myToken}&title=书法社新报名&content=${encodeURIComponent(content)}&template=html`)
-        .then(response => response.json())
-        .then(data => {
-          if(data.code === 200) {
-            alert("报名成功！我们会尽快联系您。");
-            // 清空输入框
-            nameInput.value = "";
-            phoneInput.value = "";
-          } else {
-            alert("发送失败，请截图联系老师。");
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert("网络连接有点问题，请稍后再试。");
-        })
-        .finally(() => {
-          // 恢复按钮
-          submitBtn.innerText = originalText;
-          submitBtn.style.opacity = "1";
-        });
-    });
-  }
+        // 5. 发送请求给 PushPlus
+        // 使用 Image 对象发送请求，这是最不容易被浏览器拦截的“黑科技”方法
+        var img = new Image();
+        img.src = "http://www.pushplus.plus/send?token=" + myToken + "&title=书法社报名&content=" + content + "&template=html";
+        
+        console.log("已尝试发送微信通知...");
+    }
+});
 </script>
 </body>
 </html>
