@@ -95,65 +95,63 @@
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 <script>
-// === 最终增强版：万能抓取脚本 ===
+// === 最终修正版：防误触 + 精准抓取 ===
 document.addEventListener('click', function(e) {
-    // 1. 智能识别点击（无论点字还是点按钮背景）
-    // 只要点击的区域包含“提交”或“报名”字样，或者是红色按钮，我们就拦截
-    let target = e.target;
-    let isSubmitBtn = false;
+    var target = e.target;
     
-    // 向上查找3层，防止你点到了按钮里面的小图标
-    for(let i=0; i<3; i++) {
-        if(!target) break;
-        // 检查文字
-        if (target.innerText && (target.innerText.includes("报名") || target.innerText.includes("提交"))) {
-            isSubmitBtn = true; 
-            break; 
-        }
-        // 检查是不是那个红色的按钮类名 (根据你之前的代码)
-        if (target.classList && target.classList.contains('el-button--primary')) {
-            isSubmitBtn = true;
-            break;
-        }
-        target = target.parentElement;
+    // 1. 安全锁：如果点的是输入框、下拉框选项，绝对不触发提交
+    // 这行代码能完美解决“填写时弹出”的问题
+    if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
+        return;
     }
 
-    if (isSubmitBtn) {
-        console.log("捕捉到提交动作！开始搜集数据...");
+    // 2. 寻找按钮（精准匹配）
+    var isSubmitBtn = false;
+    // 向上找3层，防止点到按钮里的箭头图标
+    var tempTarget = target;
+    for(var i=0; i<3; i++) {
+        if(!tempTarget) break;
+        
+        var text = tempTarget.innerText || "";
+        // 【核心修改】只认“立即报名”或“提交申请”这几个字
+        // 以前是 includes("报名")，太宽泛了，现在必须是完整的动词短语
+        if (text.includes("立即报名") || text.includes("提交申请")) {
+            // 再加一道保险：按钮文字通常不会很长
+            if (text.length < 20) {
+                isSubmitBtn = true;
+                break;
+            }
+        }
+        tempTarget = tempTarget.parentElement;
+    }
 
-        // 2. 抓取所有“活”的输入框
-        // 过滤掉 hidden(隐藏的)、submit(提交按钮)、checkbox(勾选框)
-        const allInputs = Array.from(document.querySelectorAll('input'));
-        const validInputs = allInputs.filter(input => {
-            return input.type !== 'hidden' && 
-                   input.type !== 'submit' && 
-                   input.type !== 'button' &&
-                   input.style.display !== 'none';
+    // 3. 只有确认是按钮，才开始干活
+    if (isSubmitBtn) {
+        console.log("确认点击了提交按钮，开始抓取...");
+
+        // 抓取所有显示的输入框
+        var allInputs = Array.from(document.querySelectorAll('input'));
+        var validInputs = allInputs.filter(function(input) {
+            return input.type !== 'hidden' && input.style.display !== 'none';
         });
 
-        // 3. 提取数据（按顺序提取前4个有效值）
-        // 即使不知道哪个是姓名，只要按顺序拿，通常第一个就是姓名，第二个是电话
-        const val1 = validInputs[0] ? validInputs[0].value : ""; // 姓名
-        const val2 = validInputs[1] ? validInputs[1].value : ""; // 电话
-        const val3 = validInputs[2] ? validInputs[2].value : ""; // 学龄段
-        const val4 = validInputs[3] ? validInputs[3].value : ""; // 校区
+        // 提取前4个数据
+        var val1 = validInputs[0] ? validInputs[0].value : ""; // 姓名
+        var val2 = validInputs[1] ? validInputs[1].value : ""; // 电话
+        var val3 = validInputs[2] ? validInputs[2].value : ""; // 学龄段
+        var val4 = validInputs[3] ? validInputs[3].value : ""; // 校区
 
-        console.log("抓取结果：", val1, val2, val3, val4);
-
-        // 4. 只有当“电话”这一栏（通常是第二栏）有值时才发送，防止误触
+        // 校验：必须有电话才发送
         if (!val2 || val2.length < 5) {
             return; 
         }
 
-        // 5. 【新增】给用户一个反馈，让你知道代码运行了
-        // 如果你在手机上看到这个弹窗，说明代码绝对没问题！
-        alert("正在为您提交报名信息...");
+        // 给用户反馈
+        alert("正在提交，请稍候...");
 
-        // 6. 发送给微信
-        const myToken = "2c31f388f6714aabaa7710eaa2a8bef6"; // 你的Token
-        
-        // 组合消息内容：把抓到的所有信息都发过去
-        const content = `【新报名】%0A姓名：${val1}%0A电话：${val2}%0A年级：${val3}%0A校区：${val4}`;
+        // 发送微信通知
+        var myToken = "2c31f388f6714aabaa7710eaa2a8bef6"; 
+        var content = "【新报名】%0A姓名：" + val1 + "%0A电话：" + val2 + "%0A年级：" + val3 + "%0A校区：" + val4;
         
         new Image().src = "https://www.pushplus.plus/send?token=" + myToken + "&title=书法社报名&content=" + content + "&template=html";
     }
