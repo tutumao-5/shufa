@@ -100,50 +100,49 @@ const MY_TOKEN = "2c31f388f6714aabaa7710eaa2a8bef6";
 // =========================================
 
 document.addEventListener('click', function(e) {
-    // 监听：点击了“立即报名”
+    // 1. 监听点击：只要点了包含“立即报名”的按钮
     if (e.target && (e.target.innerText.includes("立即报名") || e.target.textContent.includes("立即报名"))) {
         
-        // 【核心修改】策略升级：不找名字了，直接把网页上所有的“框”都抓出来
-        // 1. 抓取所有的 input (输入框) 和 select (下拉菜单)
-        var allInputs = Array.from(document.querySelectorAll('input, select'));
+        // 【核心修复】这次我们要先找到“表单(Form)”，不让它满世界乱跑
+        // 你的代码截图显示表单在一个 ID 为 contact 的区域里，或者直接找页面上唯一的 form 标签
+        var form = document.querySelector('section#contact form') || document.querySelector('form');
+
+        if (!form) {
+            alert("错误：找不到报名表单，请联系管理员");
+            return;
+        }
+
+        // 2. 只在这个表单里面找输入框 (Input) 和下拉框 (Select)
+        // 这样就绝对不会抓到网页上面的“作品对比”之类的内容了
+        var elements = form.querySelectorAll('input, select');
+
+        // 3. 按顺序提取（根据你的截图，表单里正好是这4个顺序）
+        // [0] -> 姓名
+        // [1] -> 电话
+        // [2] -> 学龄段 (下拉框)
+        // [3] -> 校区 (下拉框)
         
-        // 2. 过滤掉不相关的（比如隐藏的、或者type是submit的按钮）
-        var validInputs = allInputs.filter(el => {
-            return el.type !== 'hidden' && el.type !== 'submit' && el.type !== 'button';
-        });
+        var name = elements[0] ? elements[0].value : "未填写";
+        var phone = elements[1] ? elements[1].value : "未填写";
+        var age = elements[2] ? elements[2].value : "未填写";
+        var campus = elements[3] ? elements[3].value : "未填写";
 
-        // 3. 按屏幕位置从上到下排序（确保第1个肯定是姓名，第2个是电话...）
-        validInputs.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
-
-        // 调试：这行代码会弹窗告诉你它找到了几个框。
-        // 如果弹窗显示“找到 4 个输入框”，那就肯定能成功！
-        // alert("调试信息：找到了 " + validInputs.length + " 个填写框"); 
-
-        // 4. 按顺序赋值
-        // 第1个框 -> 姓名
-        var name = validInputs[0] ? validInputs[0].value : "未抓取到";
-        // 第2个框 -> 电话
-        var phone = validInputs[1] ? validInputs[1].value : "未抓取到";
-        // 第3个框 -> 学龄段 (尝试获取value，如果没有value就试试innerText)
-        var age = validInputs[2] ? (validInputs[2].value || validInputs[2].innerText) : "未抓取到";
-        // 第4个框 -> 校区
-        var campus = validInputs[3] ? (validInputs[3].value || validInputs[3].innerText) : "未抓取到";
-
-        // 5. 再次校验电话，防止误触
-        if (!phone || phone.length < 5) {
-            console.log("没填电话，不发送");
+        // 4. 再次校验：如果抓到的电话不对（比如不是数字），说明可能还是有问题，拦截下来
+        // 简单的判断：电话必须包含数字，且长度大于5
+        if (!phone || phone.length < 5 || !/\d/.test(phone)) {
+            console.log("检测到无效电话，可能是误触或抓取错误，已拦截");
             return; 
         }
 
-        console.log("准备发送：", name, phone, age, campus);
+        console.log("抓取成功：", name, phone, age, campus);
 
-        // 6. 发送给 PushPlus
+        // 5. 发送给 PushPlus
         fetch('https://www.pushplus.plus/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 token: MY_TOKEN,
-                title: '【新学员】' + name,
+                title: '【新学员报名】' + name,
                 content: `
                     <h3>新学员报名信息：</h3>
                     <p><b>姓名：</b>${name}</p>
@@ -156,7 +155,16 @@ document.addEventListener('click', function(e) {
             })
         })
         .then(res => res.json())
-        .then(data => console.log("发送成功", data))
+        .then(data => {
+            if(data.code === 200){
+                alert("报名成功！我们会尽快联系您。");
+                // 可选：清空输入框
+                if(elements[0]) elements[0].value = "";
+                if(elements[1]) elements[1].value = "";
+            } else {
+                console.log("PushPlus返回错误:", data);
+            }
+        })
         .catch(err => console.error("发送失败", err));
     }
 });
