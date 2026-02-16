@@ -38,9 +38,6 @@
         }
     </script>
     <style>
-        :root {
-            --cursor-size: 20px;
-        }
         body {
             background-color: #FAF7F0;
             background-image: 
@@ -48,23 +45,6 @@
                 radial-gradient(at 50% 0%, rgba(178, 34, 34, 0.02) 0, transparent 50%),
                 url('https://www.transparenttextures.com/patterns/handmade-paper.png');
             scroll-behavior: smooth;
-            cursor: none;
-        }
-        .brush-cursor {
-            width: var(--cursor-size);
-            height: var(--cursor-size);
-            background: rgba(26, 26, 26, 0.8);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transition: transform 0.1s ease-out, width 0.2s, height 0.2s;
-            mix-blend-mode: multiply;
-            filter: blur(1px);
-        }
-        .brush-cursor.active {
-            transform: scale(2);
-            background: rgba(178, 34, 34, 0.6);
         }
         .ink-spread {
             position: absolute;
@@ -111,17 +91,7 @@
     </script>
 </head>
 <body class="font-sans antialiased text-ink-black overflow-x-hidden">
-    <div id="cursor" class="brush-cursor hidden md:block"></div>
     <div id="root"></div>
-    <script>
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-        document.addEventListener('mousedown', () => cursor.classList.add('active'));
-        document.addEventListener('mouseup', () => cursor.classList.remove('active'));
-    </script>
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 </body>
