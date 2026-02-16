@@ -95,51 +95,63 @@
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 <script>
+// =================配置区域=================
+// 这是你之前提供的正确Token，不要改动
+const MY_TOKEN = "2c31f388f6714aabaa7710eaa2a8bef6"; 
+// =========================================
+
 document.addEventListener('click', function(e) {
-    // 1. 监听点击：检查用户是否点击了“提交申请”这几个字
-    // 我们使用模糊匹配，只要按钮文字包含“提交申请”就算点中
-    if (e.target && (e.target.innerText.includes("提交申请") || e.target.value === "提交申请")) {
+    // 1. 监听点击：只要用户点的按钮里包含“立即报名”这几个字
+    if (e.target && (e.target.innerText.includes("立即报名") || e.target.textContent.includes("立即报名"))) {
         
-        // 2. 获取输入框的内容
-        // 我们通过“占位符(placeholder)”来精准找到那三个框，这样最不容易出错
+        // 2. 抓取输入框内容（根据你截图中的文字查找）
+        // 我们用“placeholder”属性来定位，这样哪怕没有ID也能找到
         var nameInput = document.querySelector('input[placeholder*="称呼"]');
         var phoneInput = document.querySelector('input[placeholder*="电话"]');
-        var gradeInput = document.querySelector('input[placeholder*="学龄段"]');
+        var ageInput = document.querySelector('input[placeholder*="学龄段"]'); // 如果是下拉框可能需要调整，这里先按输入框处理
+        var campusInput = document.querySelector('input[placeholder*="校区"]');
 
-        // 如果找不到输入框（万一页面结构特殊），尝试另一种通用的抓取方式
-        if (!nameInput) {
-             var allInputs = document.querySelectorAll('input');
-             if(allInputs.length >= 2) {
-                 nameInput = allInputs[0];
-                 phoneInput = allInputs[1];
-                 gradeInput = allInputs[2]; // 可能为空
-             }
-        }
+        var name = nameInput ? nameInput.value : "未知姓名";
+        var phone = phoneInput ? phoneInput.value : "未知电话";
+        var age = ageInput ? ageInput.value : "未填学龄";
+        var campus = campusInput ? campusInput.value : "未填校区";
 
-        var name = nameInput ? nameInput.value : "未填写";
-        var phone = phoneInput ? phoneInput.value : "未填写";
-        var grade = gradeInput ? gradeInput.value : "未填写";
-
-        // 3. 简单校验：如果没填名字或电话，就不发通知（虽然网页自带校验，但我们双重保险）
-        if (name.length < 1 || phone.length < 5) {
-            // console.log("信息不完整，不发送推送");
+        // 3. 简单检查：如果是误触或没填电话，不发送
+        if (phone.length < 5) {
+            console.log("电话为空，不发送通知");
             return; 
         }
 
-        // ==========================================
-        // 【重要】请将下方引号里的内容换成你第一阶段获取的 Token
-        var myToken = "f74ba03ec3654d949da083dd9a0e1a03"; 
-        // ==========================================
+        console.log("正在发送微信通知...");
 
-        // 4. 准备发送给微信的文字内容
-        var content = "【新学员报名】%0A家长：" + name + "%0A电话：" + phone + "%0A年级：" + grade;
-
-        // 5. 发送请求给 PushPlus
-        // 使用 Image 对象发送请求，这是最不容易被浏览器拦截的“黑科技”方法
-        var img = new Image();
-        img.src = "http://www.pushplus.plus/send?token=" + myToken + "&title=书法社报名&content=" + content + "&template=html";
-        
-        console.log("已尝试发送微信通知...");
+        // 4. 发送请求给 PushPlus (使用 HTTPS 防止报错)
+        fetch('https://www.pushplus.plus/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: MY_TOKEN,
+                title: '【新学员报名】' + name,
+                content: `
+                    <h3>新学员报名信息：</h3>
+                    <p><b>姓名：</b>${name}</p>
+                    <p><b>电话：</b>${phone}</p>
+                    <p><b>学龄段：</b>${age}</p>
+                    <p><b>校区：</b>${campus}</p>
+                    <p><b>时间：</b>${new Date().toLocaleString()}</p>
+                `,
+                template: 'html'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("发送结果：", data);
+            // 这里可以加一行 alert("报名成功"); 如果你想弹窗提示的话
+        })
+        .catch(error => {
+            console.error("发送失败：", error);
+        });
     }
 });
 </script>
