@@ -1,5 +1,5 @@
 
-import { Course, StudentProgress } from './types';
+import { Course } from './types';
 
 export const COURSES: Course[] = [
   {
@@ -28,11 +28,4 @@ export const COURSES: Course[] = [
     ],
     quote: '适合希望培养特长、提升艺术修养的学生。'
   }
-];
-
-export const IMPROVEMENT_DATA: StudentProgress[] = [
-  { category: '坐姿规范', before: 40, after: 95 },
-  { category: '握笔姿势', before: 30, after: 98 },
-  { category: '笔画质量', before: 50, after: 85 },
-  { category: '卷面整洁', before: 45, after: 92 },
 ];

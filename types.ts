@@ -7,9 +7,3 @@ export interface Course {
   highlights: string[];
   quote: string;
 }
-
-export interface StudentProgress {
-  category: string;
-  before: number;
-  after: number;
-}

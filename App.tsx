@@ -1,65 +1,116 @@
 
-import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { COURSES, IMPROVEMENT_DATA } from './constants';
+import React, { useState, useEffect, useRef } from 'react';
+import { COURSES } from './constants';
 import { ImageComparison } from './components/ImageComparison';
 import { InkCanvas } from './components/InkCanvas';
 import { StudentGallery } from './components/StudentGallery';
 
 const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [activeTab, setActiveTab] = useState('hardpen');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [logoImage, setLogoImage] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // 导航项配置：名称与对应的 Section ID，按页面显示顺序排列
+  const navItems = [
+    { name: '首页', id: 'home' },
+    { name: '教学优势', id: 'advantages' },
+    { name: '蜕变对比', id: 'showcase' },
+    { name: '学员作品', id: 'gallery' },
+    { name: '课程体系', id: 'courses' },
+  ];
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setLogoImage(url);
+    }
+  };
+
+  const [activeTab, setActiveTab] = useState('hardpen');
   const activeCourse = COURSES.find(c => c.id === activeTab) || COURSES[0];
+
+  // 荷花图标组件 (Lotus Icon)
+  const LotusIcon = () => (
+    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-7 md:h-7">
+      <path d="M12 22C12 22 13 18 17 15C19 13.5 21 13 21 11C21 8 18 6 15 7C14 7.3 13 8 12 10C11 8 10 7.3 9 7C6 6 3 8 3 11C3 13 5 13.5 7 15C11 18 12 22 12 22Z" />
+      <path d="M12 21C12 21 11.5 16 8 13C6 11.3 4.5 11 4.5 9.5C4.5 7.5 6.5 6.5 8.5 7.5C9.5 8 10.5 9 12 11C13.5 9 14.5 8 15.5 7.5C17.5 6.5 19.5 7.5 19.5 9.5C19.5 11 18 11.3 16 13C12.5 16 12 21 12 21Z" opacity="0.6" />
+      <path d="M12 18C12 18 11.7 14 10 11.5C9.3 10.5 8.5 10 8.5 9C8.5 7.8 9.5 7 10.5 7.5C11 7.8 11.5 8.5 12 9.5C12.5 8.5 13 7.8 13.5 7.5C14.5 7 15.5 7.8 15.5 9C15.5 10 14.7 10.5 14 11.5C12.3 14 12 18 12 18Z" opacity="0.8" />
+    </svg>
+  );
 
   return (
     <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'glass-nav py-3' : 'bg-transparent py-8'}`}>
+      {/* Navigation - 固定在顶部 (fixed)，始终可见 */}
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        scrolled 
+        ? 'glass-nav py-3 shadow-lg' 
+        : 'bg-paper-white/50 py-6'
+      }`}>
         <div className="container mx-auto px-8 flex justify-between items-center">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-12 h-12 bg-ink-black rounded-full flex items-center justify-center text-white transition-transform group-hover:rotate-12">
-              <span className="text-2xl">荷</span>
+          <div className="flex items-center gap-3">
+            {/* 点击可上传图标的 Logo 容器 */}
+            <div 
+              onClick={() => logoInputRef.current?.click()}
+              className="w-10 h-10 md:w-12 md:h-12 bg-ink-black rounded-full flex items-center justify-center text-white transition-all duration-500 group-hover:rotate-[360deg] hover:bg-vermilion cursor-pointer overflow-hidden border-2 border-transparent hover:border-white shadow-md relative group"
+            >
+              {logoImage ? (
+                <img src={logoImage} alt="Society Logo" className="w-full h-full object-cover" />
+              ) : (
+                <LotusIcon />
+              )}
+              {/* 悬停提示文字 */}
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[8px] font-bold uppercase tracking-tighter">更换</span>
+              </div>
+              <input 
+                type="file" 
+                ref={logoInputRef} 
+                className="hidden" 
+                accept="image/*" 
+                onChange={handleLogoUpload} 
+              />
             </div>
-            <div className="text-xl font-black serif-font tracking-[0.2em] text-ink-black flex flex-col leading-none">
-              <span>十里荷塘</span>
-              <span className="text-[10px] tracking-[0.4em] text-stone-400 mt-1 font-sans">CALLIGRAPHY STUDIO</span>
-            </div>
+            
+            <a href="#home" className="text-lg md:text-xl font-black serif-font tracking-[0.2em] text-ink-black flex flex-col leading-none">
+              <span>十里荷塘书法社</span>
+              <span className="text-[10px] tracking-[0.4em] text-stone-400 mt-1 font-sans uppercase">Calligraphy Society</span>
+            </a>
           </div>
           
-          <div className="hidden md:flex items-center space-x-12 text-sm font-bold tracking-widest text-ink-black/70">
-            {['首页', '教学优势', '课程体系', '蜕变对比', '学员作品'].map((item, i) => (
+          <div className="hidden md:flex items-center space-x-10 text-sm font-bold tracking-widest text-ink-black/70">
+            {navItems.map((item) => (
               <a 
-                key={i}
-                href={`#${['home', 'advantages', 'courses', 'showcase', 'gallery'][i]}`} 
-                className="hover:text-vermilion transition-colors relative group"
+                key={item.id}
+                href={`#${item.id}`} 
+                className="hover:text-vermilion transition-colors relative group py-2"
               >
-                {item}
+                {item.name}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-vermilion transition-all group-hover:w-full"></span>
               </a>
             ))}
-            <a href="#contact" className="bg-ink-black text-white px-8 py-3 rounded-full hover:bg-vermilion transition-all shadow-xl hover:-translate-y-1">
+            <a href="#contact" className="bg-ink-black text-white px-7 py-2.5 rounded-full hover:bg-vermilion transition-all shadow-xl hover:-translate-y-1">
               预约试听
             </a>
           </div>
 
-          <button className="md:hidden text-2xl" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <button className="md:hidden text-2xl p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? '✕' : '☰'}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-paper-white/95 backdrop-blur-xl border-t border-stone-100 p-8 flex flex-col space-y-6 shadow-2xl animate-in slide-in-from-top duration-300">
-            {['首页', '教学优势', '课程体系', '蜕变对比', '学员作品'].map((item, i) => (
-              <a key={i} href={`#${['home', 'advantages', 'courses', 'showcase', 'gallery'][i]}`} className="text-xl font-serif" onClick={() => setIsMobileMenuOpen(false)}>{item}</a>
+          <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-stone-100 p-8 flex flex-col space-y-6 shadow-2xl animate-in slide-in-from-top duration-300">
+            {navItems.map((item) => (
+              <a key={item.id} href={`#${item.id}`} className="text-xl font-serif text-ink-black" onClick={() => setIsMobileMenuOpen(false)}>{item.name}</a>
             ))}
             <a href="#contact" className="bg-vermilion text-white text-center py-4 rounded-xl font-bold" onClick={() => setIsMobileMenuOpen(false)}>立即预约</a>
           </div>
@@ -75,9 +126,9 @@ const App: React.FC = () => {
               <span className="h-px w-12 bg-vermilion"></span>
               <span className="text-vermilion font-bold tracking-[0.5em] text-xs uppercase">Premium Art Education</span>
             </div>
-            <h1 className="text-7xl md:text-[10rem] font-black serif-font text-ink-black leading-[0.9] mb-8">
+            <h1 className="text-6xl md:text-[9rem] font-black serif-font text-ink-black leading-[0.9] mb-8">
               十里荷塘<br/>
-              <span className="text-vermilion inline-block transform -translate-x-2">笔墨生香</span>
+              <span className="text-vermilion inline-block transform -translate-x-2">书法社</span>
             </h1>
             <p className="text-lg md:text-xl text-stone-500 max-w-xl mb-12 font-light leading-loose tracking-widest">
               正姿控笔 · 卷面提升 · 校长亲授<br/>
@@ -119,7 +170,7 @@ const App: React.FC = () => {
 
       {/* Advantages Section */}
       <section id="advantages" className="py-32 relative bg-sage/30 overflow-hidden">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-8 pt-12">
           <div className="max-w-3xl mb-24">
             <h2 className="text-5xl md:text-6xl font-bold mb-8 serif-font text-ink-black section-heading text-left !mx-0">教学核心优势</h2>
             <p className="text-xl text-stone-500 leading-loose">
@@ -144,50 +195,9 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Statistics Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-8">
-          <div className="bg-ink-black rounded-[4rem] p-12 lg:p-24 overflow-hidden relative shadow-2xl">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-lotus-green/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-            
-            <div className="grid lg:grid-cols-2 gap-20 items-center relative z-10">
-              <div className="text-white">
-                <h3 className="text-4xl md:text-5xl font-bold mb-8 serif-font leading-tight">量化进步曲线</h3>
-                <p className="text-stone-400 mb-12 text-lg">
-                  我们通过多维度测评体系，让进步清晰可见。平均学习3个月，书写质量有质的飞跃。
-                </p>
-                <div className="grid grid-cols-2 gap-8">
-                  <div className="border-l-2 border-vermilion pl-6">
-                    <div className="text-4xl font-black mb-1">98%</div>
-                    <div className="text-xs text-stone-500 tracking-widest uppercase">家长满意度</div>
-                  </div>
-                  <div className="border-l-2 border-lotus-green pl-6">
-                    <div className="text-4xl font-black mb-1">3.5倍</div>
-                    <div className="text-xs text-stone-500 tracking-widest uppercase">平均提速</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/5 backdrop-blur-md p-8 rounded-3xl border border-white/10 h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={IMPROVEMENT_DATA}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="category" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis hide />
-                    <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: '#1A1A1A', border: 'none', borderRadius: '12px'}} />
-                    <Bar name="前" dataKey="before" fill="#333" radius={[4, 4, 0, 0]} />
-                    <Bar name="后" dataKey="after" fill="#4A6741" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Showcase Section */}
       <section id="showcase" className="py-32 bg-paper-white relative">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-8 pt-12">
           <div className="text-center mb-24">
             <span className="text-vermilion font-bold tracking-[0.4em] text-xs uppercase mb-4 block">Visual Proof</span>
             <h2 className="text-5xl md:text-6xl font-bold serif-font text-ink-black section-heading">看得见的蜕变</h2>
@@ -204,7 +214,7 @@ const App: React.FC = () => {
 
       {/* Gallery Section */}
       <section id="gallery" className="py-32 bg-white">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-8 pt-12">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div className="max-w-2xl">
               <h2 className="text-5xl font-bold serif-font text-ink-black mb-6">笔墨芳华 · 学员风采</h2>
@@ -222,7 +232,7 @@ const App: React.FC = () => {
 
       {/* Course Section */}
       <section id="courses" className="py-32 bg-sage/20 relative overflow-hidden">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-8 pt-12">
           <div className="grid lg:grid-cols-12 gap-20">
             <div className="lg:col-span-4">
               <h2 className="text-5xl font-bold serif-font text-ink-black mb-12 leading-tight">精研课程体系</h2>
@@ -253,7 +263,7 @@ const App: React.FC = () => {
 
             <div className="lg:col-span-8">
               <div className="bg-white rounded-[4rem] p-12 md:p-20 shadow-sm relative animate-in fade-in slide-in-from-right-10 duration-700" key={activeTab}>
-                <div className="text-[12rem] font-serif text-stone-50 absolute -top-10 -left-10 select-none opacity-40">荷</div>
+                <div className="text-[12rem] font-serif text-stone-50 absolute -top-10 -left-10 select-none opacity-40">墨</div>
                 <div className="relative z-10">
                   <div className="flex items-center gap-6 mb-12">
                     <span className="text-6xl p-4 bg-sage/30 rounded-3xl">{activeCourse.icon}</span>
@@ -290,7 +300,7 @@ const App: React.FC = () => {
 
       {/* Contact Section */}
       <section id="contact" className="py-32 bg-white relative">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-8 pt-12">
           <div className="bg-paper-white rounded-[5rem] overflow-hidden shadow-2xl border border-stone-100 flex flex-col lg:flex-row">
             <div className="lg:w-1/2 p-16 lg:p-24 bg-ink-black text-white relative">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
@@ -354,7 +364,7 @@ const App: React.FC = () => {
         <div className="container mx-auto px-8">
           <div className="flex flex-col md:flex-row justify-between items-start mb-20 gap-12">
             <div>
-              <div className="text-3xl font-black serif-font tracking-widest mb-6">十里荷塘</div>
+              <div className="text-3xl font-black serif-font tracking-widest mb-6">十里荷塘书法社</div>
               <p className="text-stone-500 max-w-sm leading-loose">
                 深耕少儿书法教育，让传统文化之美在新生代心中生根发芽。
               </p>
@@ -363,9 +373,9 @@ const App: React.FC = () => {
               <div>
                 <h5 className="font-bold mb-6 text-sm tracking-widest uppercase">快速导航</h5>
                 <ul className="space-y-4 text-stone-500 text-sm">
-                  <li><a href="#" className="hover:text-white">教师团队</a></li>
-                  <li><a href="#" className="hover:text-white">课程安排</a></li>
-                  <li><a href="#" className="hover:text-white">校区环境</a></li>
+                  <li><a href="#advantages" className="hover:text-white">教学优势</a></li>
+                  <li><a href="#courses" className="hover:text-white">课程体系</a></li>
+                  <li><a href="#gallery" className="hover:text-white">学员风采</a></li>
                 </ul>
               </div>
               <div>
@@ -379,7 +389,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-stone-600 gap-4">
-            <p>© 2026 十里荷塘书法工作室 · 虹桥/蒲岐旗舰校区</p>
+            <p>© 2026 十里荷塘书法社 · 虹桥/蒲岐旗舰校区</p>
             <p>DESIGN BY ARTISTIC HERITAGE</p>
           </div>
         </div>
