@@ -12,23 +12,23 @@ const App: React.FC = () => {
   const [comparisons, setComparisons] = useState([
     { 
       id: 1, 
-      studentName: '学员作品对比', 
-      details: '硬笔书法提升班 · 第三阶段成果',
+      studentName: '学员：林晓墨', 
+      details: '硬笔书法提升班 · 12课时成果',
       before: 'https://images.unsplash.com/photo-1603366615917-1fa6dad5c4fa?q=80&w=1200&auto=format&fit=crop',
       after: 'https://images.unsplash.com/photo-1516962215378-7fa2e137ae91?q=80&w=1200&auto=format&fit=crop'
+    },
+    { 
+      id: 2, 
+      studentName: '学员：张嘉铭', 
+      details: '规范字速成班 · 暑期集训成果',
+      before: 'https://images.unsplash.com/photo-1544640808-32ca72ac7f37?q=80&w=1200&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?q=80&w=1200&auto=format&fit=crop'
     }
   ]);
+  
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
-
-  // 表单状态管理
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    ageGroup: '',
-    campus: ''
-  });
-  const [formError, setFormError] = useState('');
-  const [isSubmitSuccess, setIsSubmitSuccess] = useState(false);
 
   // 导航项配置
   const navItems = [
@@ -53,11 +53,19 @@ const App: React.FC = () => {
     }
   };
 
+  const handleHorizontalScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      const progress = (scrollLeft / (scrollWidth - clientWidth)) * 100;
+      setScrollProgress(isNaN(progress) ? 0 : progress);
+    }
+  };
+
   const addComparison = () => {
     const newComp = {
       id: Date.now(),
       studentName: '新学员蜕变对比',
-      details: '请点击上方按钮上传图片',
+      details: '请点击下方按钮上传图片',
       before: 'https://www.transparenttextures.com/patterns/handmade-paper.png',
       after: 'https://www.transparenttextures.com/patterns/handmade-paper.png'
     };
@@ -68,32 +76,34 @@ const App: React.FC = () => {
     setComparisons(comparisons.filter(c => c.id !== id));
   };
 
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    ageGroup: '',
+    campus: ''
+  });
+  const [formError, setFormError] = useState('');
+  const [isSubmitSuccess, setIsSubmitSuccess] = useState(false);
+
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setFormError(''); // 清除错误提示
+    setFormError('');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // 基础非空校验
     if (!formData.name || !formData.phone || !formData.ageGroup || !formData.campus) {
       setFormError('请将报名信息填写完整');
       return;
     }
-
-    // 手机号格式校验 (中国大陆手机号标准)
     const phoneRegex = /^1[3-9]\d{9}$/;
     if (!phoneRegex.test(formData.phone)) {
       setFormError('请输入正确的联系电话（11位手机号）');
       return;
     }
-
-    // 模拟提交成功
     setIsSubmitSuccess(true);
     setFormError('');
-    // 清空表单
     setFormData({ name: '', phone: '', ageGroup: '', campus: '' });
   };
 
@@ -206,10 +216,6 @@ const App: React.FC = () => {
              </div>
           </div>
         </div>
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-30">
-          <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-ink-black">Scroll</span>
-          <div className="w-px h-16 bg-gradient-to-b from-ink-black to-transparent"></div>
-        </div>
       </section>
 
       {/* Advantages Section */}
@@ -236,38 +242,64 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Showcase Section */}
-      <section id="showcase" className="py-32 bg-paper-white relative">
+      {/* Showcase Section - Horizontal Slider Version */}
+      <section id="showcase" className="py-32 bg-paper-white relative overflow-hidden">
         <div className="container mx-auto px-8 pt-12">
-          <div className="text-center mb-24">
+          <div className="text-center mb-16">
             <span className="text-vermilion font-bold tracking-[0.4em] text-xs uppercase mb-4 block">Visual Proof</span>
             <h2 className="text-5xl md:text-6xl font-bold serif-font text-ink-black section-heading">看得见的蜕变</h2>
-            <p className="text-stone-400 mt-4">在这里，见证每一滴汗水凝结成的艺术果实</p>
+            <p className="text-stone-400 mt-4">横向滑动查看更多学员成果，见证笔墨间的飞跃</p>
           </div>
           
-          <div className="space-y-24">
+          {/* Horizontal Scroll Container */}
+          <div 
+            ref={scrollContainerRef}
+            onScroll={handleHorizontalScroll}
+            className="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-16 no-scrollbar -mx-8 px-8 scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {comparisons.map((comp) => (
-              <ImageComparison 
-                key={comp.id}
-                initialBeforeUrl={comp.before}
-                initialAfterUrl={comp.after}
-                studentName={comp.studentName}
-                details={comp.details}
-                onDelete={comparisons.length > 1 ? () => removeComparison(comp.id) : undefined}
-              />
+              <div key={comp.id} className="snap-center shrink-0 w-[90vw] max-w-4xl">
+                <ImageComparison 
+                  initialBeforeUrl={comp.before}
+                  initialAfterUrl={comp.after}
+                  studentName={comp.studentName}
+                  details={comp.details}
+                  onDelete={comparisons.length > 1 ? () => removeComparison(comp.id) : undefined}
+                />
+              </div>
             ))}
 
-            <div 
-              onClick={addComparison}
-              className="max-w-4xl mx-auto border-4 border-dashed border-stone-200 rounded-[3rem] p-12 flex flex-col items-center justify-center cursor-pointer transition-all hover:border-lotus-green hover:bg-lotus-green/5 group"
-            >
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-8 h-8 text-lotus-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path>
-                </svg>
+            {/* Add New Case Button as a slide */}
+            <div className="snap-center shrink-0 w-[90vw] max-w-md">
+              <div 
+                onClick={addComparison}
+                className="h-full border-4 border-dashed border-stone-200 rounded-[3rem] p-12 flex flex-col items-center justify-center cursor-pointer transition-all hover:border-lotus-green hover:bg-lotus-green/5 group bg-white shadow-inner"
+                style={{ minHeight: '550px' }}
+              >
+                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md mb-6 group-hover:scale-110 transition-transform border border-stone-100">
+                  <svg className="w-8 h-8 text-lotus-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                </div>
+                <h4 className="text-2xl font-bold serif-font text-ink-black mb-2 text-center">添加新学员案例</h4>
+                <p className="text-stone-400 text-[10px] tracking-[0.3em] uppercase font-bold text-center">Add New Case Study</p>
               </div>
-              <h4 className="text-2xl font-bold serif-font text-ink-black mb-2">添加新的学员对比</h4>
-              <p className="text-stone-400 text-xs tracking-[0.3em] uppercase font-bold">Add New Student Case</p>
+            </div>
+          </div>
+
+          {/* Custom Horizontal Progress Bar / Scrollbar */}
+          <div className="max-w-2xl mx-auto mt-10 px-4">
+            <div className="relative h-1.5 w-full bg-stone-200 rounded-full overflow-hidden">
+              <div 
+                className="absolute h-full bg-vermilion rounded-full transition-all duration-150 ease-out shadow-[0_0_10px_rgba(178,34,34,0.3)]"
+                style={{ width: `${100 / (comparisons.length + 1)}%`, left: `${scrollProgress * (1 - (1 / (comparisons.length + 1)))}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-4 text-[10px] font-black tracking-widest text-stone-300 uppercase italic">
+              <span>Start</span>
+              <span>Case {Math.round(scrollProgress / (100 / comparisons.length)) + 1} of {comparisons.length}</span>
+              <span>End</span>
             </div>
           </div>
         </div>
