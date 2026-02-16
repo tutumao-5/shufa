@@ -94,5 +94,67 @@
     <div id="root"></div>
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
+<script>
+  // 1. 找到页面上的按钮和输入框
+  // 注意：这里假设你的输入框是按顺序排列的。如果不行，我们需要更精确的方法。
+  const allInputs = document.querySelectorAll('input'); 
+  const nameInput = allInputs[0]; // 第一个输入框（称呼）
+  const phoneInput = allInputs[1]; // 第二个输入框（电话）
+  const gradeInput = allInputs[2]; // 第三个输入框（学龄段）
+  const submitBtn = document.querySelector('.el-button--primary') || document.querySelector('button'); // 寻找提交按钮
+
+  // 2. 给按钮添加点击事件
+  if(submitBtn) {
+    submitBtn.addEventListener('click', function(e) {
+      // 阻止按钮原本的“跳转”或“刷新”行为
+      e.preventDefault(); 
+
+      // 获取填写的内容
+      const name = nameInput.value;
+      const phone = phoneInput.value;
+      const grade = gradeInput.value;
+
+      // 简单检查有没有填
+      if (!name || !phone) {
+        alert("家长您好，请填写完整姓名和电话！");
+        return;
+      }
+
+      // 按钮变色，防止重复点
+      const originalText = submitBtn.innerText;
+      submitBtn.innerText = "提交中...";
+      submitBtn.style.opacity = "0.7";
+
+      // 3. 准备发给微信的数据 (你的 Token 填在下面！)
+      const myToken = "2c31f388f6714aabaa7710eaa2a8bef6"; 
+      
+      const content = `家长姓名：${name}\n联系电话：${phone}\n孩子年级：${grade}`;
+
+      // 4. 发送！(通过 Cloudflare 转发或直接发送)
+      // 为了最简单，我们尝试直接发给 PushPlus (可能会有跨域问题，但先试试最简单的)
+      fetch(`http://www.pushplus.plus/send?token=${myToken}&title=书法社新报名&content=${encodeURIComponent(content)}&template=html`)
+        .then(response => response.json())
+        .then(data => {
+          if(data.code === 200) {
+            alert("报名成功！我们会尽快联系您。");
+            // 清空输入框
+            nameInput.value = "";
+            phoneInput.value = "";
+          } else {
+            alert("发送失败，请截图联系老师。");
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert("网络连接有点问题，请稍后再试。");
+        })
+        .finally(() => {
+          // 恢复按钮
+          submitBtn.innerText = originalText;
+          submitBtn.style.opacity = "1";
+        });
+    });
+  }
+</script>
 </body>
 </html>
