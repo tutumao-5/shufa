@@ -95,4 +95,53 @@
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 </body>
+    <script>
+document.addEventListener('click', function(e) {
+    // 1. 监听点击：检查用户是否点击了“提交申请”这几个字
+    // 我们使用模糊匹配，只要按钮文字包含“提交申请”就算点中
+    if (e.target && (e.target.innerText.includes("提交申请") || e.target.value === "提交申请")) {
+        
+        // 2. 获取输入框的内容
+        // 我们通过“占位符(placeholder)”来精准找到那三个框，这样最不容易出错
+        var nameInput = document.querySelector('input[placeholder*="称呼"]');
+        var phoneInput = document.querySelector('input[placeholder*="电话"]');
+        var gradeInput = document.querySelector('input[placeholder*="学龄段"]');
+
+        // 如果找不到输入框（万一页面结构特殊），尝试另一种通用的抓取方式
+        if (!nameInput) {
+             var allInputs = document.querySelectorAll('input');
+             if(allInputs.length >= 2) {
+                 nameInput = allInputs[0];
+                 phoneInput = allInputs[1];
+                 gradeInput = allInputs[2]; // 可能为空
+             }
+        }
+
+        var name = nameInput ? nameInput.value : "未填写";
+        var phone = phoneInput ? phoneInput.value : "未填写";
+        var grade = gradeInput ? gradeInput.value : "未填写";
+
+        // 3. 简单校验：如果没填名字或电话，就不发通知（虽然网页自带校验，但我们双重保险）
+        if (name.length < 1 || phone.length < 5) {
+            // console.log("信息不完整，不发送推送");
+            return; 
+        }
+
+        // ==========================================
+        // 【重要】请将下方引号里的内容换成你第一阶段获取的 Token
+        var myToken = "b7e43d6ed43e4bcfb9ab8c9c83f2a714"; 
+        // ==========================================
+
+        // 4. 准备发送给微信的文字内容
+        var content = "【新学员报名】%0A家长：" + name + "%0A电话：" + phone + "%0A年级：" + grade;
+
+        // 5. 发送请求给 PushPlus
+        // 使用 Image 对象发送请求，这是最不容易被浏览器拦截的“黑科技”方法
+        var img = new Image();
+        img.src = "http://www.pushplus.plus/send?token=" + myToken + "&title=书法社报名&content=" + content + "&template=html";
+        
+        console.log("已尝试发送微信通知...");
+    }
+});
+</script>
 </html>
