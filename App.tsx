@@ -9,9 +9,28 @@ const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [logoImage, setLogoImage] = useState<string | null>(null);
+  const [comparisons, setComparisons] = useState([
+    { 
+      id: 1, 
+      studentName: '学员作品对比', 
+      details: '硬笔书法提升班 · 第三阶段成果',
+      before: 'https://images.unsplash.com/photo-1603366615917-1fa6dad5c4fa?q=80&w=1200&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1516962215378-7fa2e137ae91?q=80&w=1200&auto=format&fit=crop'
+    }
+  ]);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  // 导航项配置：名称与对应的 Section ID，按页面显示顺序排列
+  // 表单状态管理
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    ageGroup: '',
+    campus: ''
+  });
+  const [formError, setFormError] = useState('');
+  const [isSubmitSuccess, setIsSubmitSuccess] = useState(false);
+
+  // 导航项配置
   const navItems = [
     { name: '首页', id: 'home' },
     { name: '教学优势', id: 'advantages' },
@@ -34,10 +53,53 @@ const App: React.FC = () => {
     }
   };
 
+  const addComparison = () => {
+    const newComp = {
+      id: Date.now(),
+      studentName: '新学员蜕变对比',
+      details: '请点击上方按钮上传图片',
+      before: 'https://www.transparenttextures.com/patterns/handmade-paper.png',
+      after: 'https://www.transparenttextures.com/patterns/handmade-paper.png'
+    };
+    setComparisons([...comparisons, newComp]);
+  };
+
+  const removeComparison = (id: number) => {
+    setComparisons(comparisons.filter(c => c.id !== id));
+  };
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormError(''); // 清除错误提示
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // 基础非空校验
+    if (!formData.name || !formData.phone || !formData.ageGroup || !formData.campus) {
+      setFormError('请将报名信息填写完整');
+      return;
+    }
+
+    // 手机号格式校验 (中国大陆手机号标准)
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      setFormError('请输入正确的联系电话（11位手机号）');
+      return;
+    }
+
+    // 模拟提交成功
+    setIsSubmitSuccess(true);
+    setFormError('');
+    // 清空表单
+    setFormData({ name: '', phone: '', ageGroup: '', campus: '' });
+  };
+
   const [activeTab, setActiveTab] = useState('hardpen');
   const activeCourse = COURSES.find(c => c.id === activeTab) || COURSES[0];
 
-  // 荷花图标组件 (Lotus Icon)
   const LotusIcon = () => (
     <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-7 md:h-7">
       <path d="M12 22C12 22 13 18 17 15C19 13.5 21 13 21 11C21 8 18 6 15 7C14 7.3 13 8 12 10C11 8 10 7.3 9 7C6 6 3 8 3 11C3 13 5 13.5 7 15C11 18 12 22 12 22Z" />
@@ -48,35 +110,24 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Navigation - 固定在顶部 (fixed)，始终可见 */}
       <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-        scrolled 
-        ? 'glass-nav py-3 shadow-lg' 
-        : 'bg-paper-white/50 py-6'
+        scrolled ? 'glass-nav py-3 shadow-lg' : 'bg-paper-white/50 py-6'
       }`}>
         <div className="container mx-auto px-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            {/* 点击可上传图标的 Logo 容器 */}
             <div 
               onClick={() => logoInputRef.current?.click()}
-              className="w-10 h-10 md:w-12 md:h-12 bg-ink-black rounded-full flex items-center justify-center text-white transition-all duration-500 group-hover:rotate-[360deg] hover:bg-vermilion cursor-pointer overflow-hidden border-2 border-transparent hover:border-white shadow-md relative group"
+              className="w-10 h-10 md:w-12 md:h-12 bg-ink-black rounded-full flex items-center justify-center text-white transition-all duration-500 hover:bg-vermilion cursor-pointer overflow-hidden border-2 border-transparent hover:border-white shadow-md relative group"
             >
               {logoImage ? (
                 <img src={logoImage} alt="Society Logo" className="w-full h-full object-cover" />
               ) : (
                 <LotusIcon />
               )}
-              {/* 悬停提示文字 */}
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="text-[8px] font-bold uppercase tracking-tighter">更换</span>
               </div>
-              <input 
-                type="file" 
-                ref={logoInputRef} 
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleLogoUpload} 
-              />
+              <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
             </div>
             
             <a href="#home" className="text-lg md:text-xl font-black serif-font tracking-[0.2em] text-ink-black flex flex-col leading-none">
@@ -87,11 +138,7 @@ const App: React.FC = () => {
           
           <div className="hidden md:flex items-center space-x-10 text-sm font-bold tracking-widest text-ink-black/70">
             {navItems.map((item) => (
-              <a 
-                key={item.id}
-                href={`#${item.id}`} 
-                className="hover:text-vermilion transition-colors relative group py-2"
-              >
+              <a key={item.id} href={`#${item.id}`} className="hover:text-vermilion transition-colors relative group py-2">
                 {item.name}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-vermilion transition-all group-hover:w-full"></span>
               </a>
@@ -106,7 +153,6 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-stone-100 p-8 flex flex-col space-y-6 shadow-2xl animate-in slide-in-from-top duration-300">
             {navItems.map((item) => (
@@ -147,7 +193,6 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
-          
           <div className="hidden lg:block lg:col-span-4 relative">
              <div className="serif-vertical text-6xl md:text-8xl font-black text-ink-black/10 absolute -right-20 top-0 select-none animate-float">
                书法是一种修养
@@ -161,7 +206,6 @@ const App: React.FC = () => {
              </div>
           </div>
         </div>
-        
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-30">
           <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-ink-black">Scroll</span>
           <div className="w-px h-16 bg-gradient-to-b from-ink-black to-transparent"></div>
@@ -173,11 +217,8 @@ const App: React.FC = () => {
         <div className="container mx-auto px-8 pt-12">
           <div className="max-w-3xl mb-24">
             <h2 className="text-5xl md:text-6xl font-bold mb-8 serif-font text-ink-black section-heading text-left !mx-0">教学核心优势</h2>
-            <p className="text-xl text-stone-500 leading-loose">
-              我们深知，书法教育不仅是技法的传授，更是审美的唤醒与性格的磨砺。
-            </p>
+            <p className="text-xl text-stone-500 leading-loose">我们深知，书法教育不仅是技法的传授，更是审美的唤醒与性格的磨砺。</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               { icon: '👨‍🏫', title: '名师领衔', tag: 'Expert', desc: '由校长亲自执教，不仅传授运笔之道，更分享人生智慧，确保每个细节都有名师点拨。' },
@@ -201,14 +242,34 @@ const App: React.FC = () => {
           <div className="text-center mb-24">
             <span className="text-vermilion font-bold tracking-[0.4em] text-xs uppercase mb-4 block">Visual Proof</span>
             <h2 className="text-5xl md:text-6xl font-bold serif-font text-ink-black section-heading">看得见的蜕变</h2>
+            <p className="text-stone-400 mt-4">在这里，见证每一滴汗水凝结成的艺术果实</p>
           </div>
           
-          <ImageComparison 
-            initialBeforeUrl="https://images.unsplash.com/photo-1603366615917-1fa6dad5c4fa?q=80&w=1200&auto=format&fit=crop"
-            initialAfterUrl="https://images.unsplash.com/photo-1516962215378-7fa2e137ae91?q=80&w=1200&auto=format&fit=crop"
-            studentName="学员作品对比"
-            details="硬笔书法提升班 · 第三阶段成果"
-          />
+          <div className="space-y-24">
+            {comparisons.map((comp) => (
+              <ImageComparison 
+                key={comp.id}
+                initialBeforeUrl={comp.before}
+                initialAfterUrl={comp.after}
+                studentName={comp.studentName}
+                details={comp.details}
+                onDelete={comparisons.length > 1 ? () => removeComparison(comp.id) : undefined}
+              />
+            ))}
+
+            <div 
+              onClick={addComparison}
+              className="max-w-4xl mx-auto border-4 border-dashed border-stone-200 rounded-[3rem] p-12 flex flex-col items-center justify-center cursor-pointer transition-all hover:border-lotus-green hover:bg-lotus-green/5 group"
+            >
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md mb-6 group-hover:scale-110 transition-transform">
+                <svg className="w-8 h-8 text-lotus-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path>
+                </svg>
+              </div>
+              <h4 className="text-2xl font-bold serif-font text-ink-black mb-2">添加新的学员对比</h4>
+              <p className="text-stone-400 text-xs tracking-[0.3em] uppercase font-bold">Add New Student Case</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -218,13 +279,9 @@ const App: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div className="max-w-2xl">
               <h2 className="text-5xl font-bold serif-font text-ink-black mb-6">笔墨芳华 · 学员风采</h2>
-              <p className="text-stone-500 text-lg">
-                每一幅字都是光阴的缩影，记录着指尖与纸张碰撞出的温度。
-              </p>
+              <p className="text-stone-500 text-lg">每一幅字都是光阴的缩影，记录着指尖与纸张碰撞出的温度。</p>
             </div>
-            <a href="#contact" className="px-8 py-3 border border-ink-black rounded-full hover:bg-ink-black hover:text-white transition-all text-sm font-bold tracking-widest">
-              加入我们 ➔
-            </a>
+            <a href="#contact" className="px-8 py-3 border border-ink-black rounded-full hover:bg-ink-black hover:text-white transition-all text-sm font-bold tracking-widest">加入我们 ➔</a>
           </div>
           <StudentGallery />
         </div>
@@ -242,9 +299,7 @@ const App: React.FC = () => {
                     key={course.id}
                     onClick={() => setActiveTab(course.id)}
                     className={`group text-left p-8 rounded-[2rem] transition-all duration-500 relative overflow-hidden ${
-                      activeTab === course.id 
-                      ? 'bg-ink-black text-white shadow-2xl scale-[1.05]' 
-                      : 'bg-white hover:shadow-xl'
+                      activeTab === course.id ? 'bg-ink-black text-white shadow-2xl scale-[1.05]' : 'bg-white hover:shadow-xl'
                     }`}
                   >
                     <div className="flex items-center justify-between relative z-10">
@@ -260,7 +315,6 @@ const App: React.FC = () => {
                 ))}
               </div>
             </div>
-
             <div className="lg:col-span-8">
               <div className="bg-white rounded-[4rem] p-12 md:p-20 shadow-sm relative animate-in fade-in slide-in-from-right-10 duration-700" key={activeTab}>
                 <div className="text-[12rem] font-serif text-stone-50 absolute -top-10 -left-10 select-none opacity-40">墨</div>
@@ -273,7 +327,6 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-2xl text-stone-600 mb-12 font-medium leading-relaxed">{activeCourse.description}</p>
-                  
                   <div className="grid md:grid-cols-2 gap-12">
                     <ul className="space-y-6">
                       {activeCourse.highlights.map((h, i) => (
@@ -306,19 +359,13 @@ const App: React.FC = () => {
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
               <div className="relative z-10">
                 <h2 className="text-6xl font-black serif-font mb-12 leading-tight">让改变<br/>从今天开始</h2>
-                <p className="text-stone-400 text-xl mb-16 leading-loose">
-                  每一位伟大的书法家，都曾有过笨拙的起笔。我们在这里，陪伴孩子写好人生的每一个字。
-                </p>
-                
+                <p className="text-stone-400 text-xl mb-16 leading-loose">每一位伟大的书法家，都曾有过笨拙的起笔。我们在这里，陪伴孩子写好人生的每一个字。</p>
                 <div className="space-y-12">
                   <div className="flex gap-8">
                     <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-vermilion">📍</div>
                     <div>
                       <h4 className="font-bold text-xl mb-4 serif-font">艺术馆址</h4>
-                      <p className="text-stone-400 text-sm leading-relaxed">
-                        虹桥校区：三村梅隆路66号<br/>
-                        蒲岐校区：定安小区1幢B门
-                      </p>
+                      <p className="text-stone-400 text-sm leading-relaxed">虹桥校区：三村梅隆路66号<br/>蒲岐校区：定安小区1幢B门</p>
                     </div>
                   </div>
                   <div className="flex gap-8">
@@ -332,42 +379,104 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
+            
+            <div className="lg:w-1/2 p-16 lg:p-24 bg-white flex flex-col justify-center">
+              {isSubmitSuccess ? (
+                <div className="text-center animate-in zoom-in duration-500">
+                  <div className="w-24 h-24 bg-lotus-green text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
+                    <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  </div>
+                  <h3 className="text-4xl font-bold serif-font text-ink-black mb-6">报名提交成功！</h3>
+                  <p className="text-stone-500 text-lg leading-relaxed mb-12">
+                    感谢您对十里荷塘书法社的关注。<br/>
+                    我们的顾问老师将在24小时内联系您，<br/>
+                    为您预约具体的到店体验时间。
+                  </p>
+                  <button 
+                    onClick={() => setIsSubmitSuccess(false)}
+                    className="px-10 py-4 border-2 border-ink-black rounded-full font-bold hover:bg-ink-black hover:text-white transition-all"
+                  >
+                    返回表单
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-3xl font-bold mb-12 serif-font text-ink-black">免费试课报名</h3>
+                  <form className="space-y-8" onSubmit={handleSubmit}>
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        name="name"
+                        value={formData.name}
+                        onChange={handleFormChange}
+                        placeholder="您的称呼" 
+                        className={`w-full bg-stone-50 border-b-2 py-4 outline-none transition-colors px-2 ${formError && !formData.name ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`} 
+                      />
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="tel" 
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleFormChange}
+                        placeholder="联系电话 (11位手机号)" 
+                        className={`w-full bg-stone-50 border-b-2 py-4 outline-none transition-colors px-2 ${formError && (!formData.phone || !/^1[3-9]\d{9}$/.test(formData.phone)) ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`} 
+                      />
+                    </div>
+                    <div className="relative">
+                      <select 
+                        name="ageGroup"
+                        value={formData.ageGroup}
+                        onChange={handleFormChange}
+                        className={`w-full bg-stone-50 border-b-2 py-4 outline-none transition-colors px-2 appearance-none ${formError && !formData.ageGroup ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`}
+                      >
+                        <option value="">请选择学龄段</option>
+                        <option value="幼儿园">学龄段：幼儿园</option>
+                        <option value="小学1-3年级">学龄段：小学1-3年级</option>
+                        <option value="小学4-6年级">学龄段：小学4-6年级</option>
+                        <option value="初中">学龄段：初中</option>
+                      </select>
+                    </div>
+                    <div className="relative">
+                      <select 
+                        name="campus"
+                        value={formData.campus}
+                        onChange={handleFormChange}
+                        className={`w-full bg-stone-50 border-b-2 py-4 outline-none transition-colors px-2 appearance-none ${formError && !formData.campus ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`}
+                      >
+                        <option value="">请选择报名校区</option>
+                        <option value="虹桥校区">校区选择：虹桥校区</option>
+                        <option value="蒲岐校区">校区选择：蒲岐校区</option>
+                      </select>
+                    </div>
 
-            <div className="lg:w-1/2 p-16 lg:p-24 bg-white">
-              <h3 className="text-3xl font-bold mb-12 serif-font text-ink-black">免费预约测评</h3>
-              <form className="space-y-8">
-                <div className="relative">
-                  <input type="text" placeholder="您的称呼" className="w-full bg-stone-50 border-b-2 border-stone-100 py-4 outline-none focus:border-vermilion transition-colors px-2" />
-                </div>
-                <div className="relative">
-                  <input type="tel" placeholder="联系电话" className="w-full bg-stone-50 border-b-2 border-stone-100 py-4 outline-none focus:border-vermilion transition-colors px-2" />
-                </div>
-                <div className="relative">
-                  <select className="w-full bg-stone-50 border-b-2 border-stone-100 py-4 outline-none focus:border-vermilion transition-colors px-2 appearance-none">
-                    <option>学龄段：小学1-3年级</option>
-                    <option>学龄段：小学4-6年级</option>
-                    <option>学龄段：幼儿园/初中</option>
-                  </select>
-                </div>
-                <button className="w-full bg-vermilion text-white py-6 rounded-2xl text-xl font-bold shadow-2xl hover:bg-ink-black transition-all transform hover:-translate-y-1">
-                  提交申请 ➔
-                </button>
-                <p className="text-center text-stone-400 text-xs">提交后，我们将在24小时内通过电话与您预约具体测评时间</p>
-              </form>
+                    {formError && (
+                      <div className="p-4 bg-vermilion/5 border-l-4 border-vermilion text-vermilion text-sm font-bold animate-in fade-in slide-in-from-left-4">
+                        ⚠ {formError}
+                      </div>
+                    )}
+
+                    <button 
+                      type="submit"
+                      className="w-full bg-vermilion text-white py-6 rounded-2xl text-xl font-bold shadow-2xl hover:bg-ink-black transition-all transform hover:-translate-y-1 active:scale-95"
+                    >
+                      立即报名 ➔
+                    </button>
+                    <p className="text-center text-stone-400 text-xs">提交后，我们将在24小时内通过电话与您预约具体试课时间</p>
+                  </form>
+                </>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-ink-black text-white pt-32 pb-16">
         <div className="container mx-auto px-8">
           <div className="flex flex-col md:flex-row justify-between items-start mb-20 gap-12">
             <div>
               <div className="text-3xl font-black serif-font tracking-widest mb-6">十里荷塘书法社</div>
-              <p className="text-stone-500 max-w-sm leading-loose">
-                深耕少儿书法教育，让传统文化之美在新生代心中生根发芽。
-              </p>
+              <p className="text-stone-500 max-w-sm leading-loose">深耕少儿书法教育，让传统文化之美在新生代心中生根发芽。</p>
             </div>
             <div className="grid grid-cols-2 gap-20">
               <div>
