@@ -12,10 +12,11 @@ const App: React.FC = () => {
   const [comparisons, setComparisons] = useState([
     { 
       id: 1, 
-      studentName: '学员作品对比', 
-      details: '硬笔书法提升班 · 第三阶段成果',
-      before: 'https://images.unsplash.com/photo-1603366615917-1fa6dad5c4fa?q=80&w=1200&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1516962215378-7fa2e137ae91?q=80&w=1200&auto=format&fit=crop'
+      studentName: '张小明（示例）',  // 这里可以改学生名字
+      details: '硬笔书法 · 进步展示',   // 这里可以改描述
+      // 注意下面这两行，改成了你的本地路径
+      before: '/chengguo/chengguo1.jpg', 
+      after: '/chengguo/chengguo2.jpg'   
     }
   ]);
   const logoInputRef = useRef<HTMLInputElement>(null);
