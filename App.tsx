@@ -1,25 +1,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { COURSES } from './constants';
-import { ImageComparison } from './components/ImageComparison';
+import { TeacherShowcase } from './components/TeacherShowcase';
 import { InkCanvas } from './components/InkCanvas';
 import { StudentGallery } from './components/StudentGallery';
 
 const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [logoImage, setLogoImage] = useState<string | null>(null);
-  
-  // 初始化仅保留一个空白对比框
-  const [comparisons, setComparisons] = useState([
-    { 
-      id: 1, 
-      studentName: '', 
-      details: '',
-      before: '',
-      after: ''
-    }
-  ]);
+  const [logoImage, setLogoImage] = useState<string | null>('/logo.png');
   
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -40,7 +29,7 @@ const App: React.FC = () => {
   const navItems = [
     { name: '首页', id: 'home' },
     { name: '教学优势', id: 'advantages' },
-    { name: '蜕变对比', id: 'showcase' },
+    { name: '教师风采', id: 'teachers' },
     { name: '学员作品', id: 'gallery' },
     { name: '课程体系', id: 'courses' },
   ];
@@ -82,21 +71,6 @@ const App: React.FC = () => {
       left: targetScroll,
       behavior: 'smooth'
     });
-  };
-
-  const addComparison = () => {
-    const newComp = {
-      id: Date.now(),
-      studentName: '',
-      details: '',
-      before: '',
-      after: ''
-    };
-    setComparisons([...comparisons, newComp]);
-  };
-
-  const removeComparison = (id: number) => {
-    setComparisons(comparisons.filter(c => c.id !== id));
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -154,9 +128,9 @@ const App: React.FC = () => {
               <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
             </div>
             
-            <a href="#home" className="text-sm md:text-xl font-black serif-font tracking-[0.1em] md:tracking-[0.2em] text-ink-black flex flex-col leading-none">
-              <span>十里荷塘书法社</span>
-              <span className="text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.4em] text-stone-400 mt-1 font-sans uppercase">Calligraphy Society</span>
+            <a href="#home" className="text-sm md:text-xl font-black tracking-[0.1em] md:tracking-[0.2em] text-ink-black flex flex-col leading-none">
+              <span className="font-calligraphy text-2xl md:text-3xl">十里荷塘书法工作室</span>
+              <span className="text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.4em] text-stone-400 mt-1 font-sans uppercase">Calligraphy Studio</span>
             </a>
           </div>
           
@@ -197,9 +171,9 @@ const App: React.FC = () => {
               <span className="h-px w-8 md:w-12 bg-vermilion"></span>
               <span className="text-vermilion font-bold tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs uppercase">Premium Art Education</span>
             </div>
-            <h1 className="text-4xl sm:text-6xl md:text-[9rem] font-black serif-font text-ink-black leading-[1.2] md:leading-[0.9] mb-6 md:mb-8">
+            <h1 className="text-4xl sm:text-6xl md:text-[9rem] font-black font-calligraphy text-ink-black leading-[1.2] md:leading-[0.9] mb-6 md:mb-8">
               十里荷塘<br className="hidden sm:block" />
-              <span className="text-vermilion inline-block transform sm:-translate-x-2">书法社</span>
+              <span className="text-vermilion inline-block transform sm:-translate-x-2">书法工作室</span>
             </h1>
             <p className="text-base md:text-xl text-stone-500 max-w-xl mb-8 md:mb-12 font-light leading-relaxed md:leading-loose tracking-widest">
               正姿控笔 · 卷面提升 · 校长亲授<br />
@@ -257,76 +231,15 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Showcase Section - Draggable Slider with Single Blank Case */}
-      <section id="showcase" className="py-20 md:py-32 bg-paper-white relative overflow-hidden">
-        <div className="container mx-auto px-6 md:px-8">
-          <div className="text-center mb-10 md:mb-16">
-            <span className="text-vermilion font-bold tracking-[0.3em] md:tracking-[0.4em] text-[10px] md:text-xs uppercase mb-2 md:mb-4 block">Visual Proof</span>
-            <h2 className="text-3xl md:text-6xl font-bold serif-font text-ink-black section-heading">看得见的蜕变</h2>
-            <p className="text-stone-400 mt-2 text-sm md:text-base">左右滑动案例 · 点击对比图直接上传本地照片</p>
+      {/* Teacher Showcase Section */}
+      <section id="teachers" className="py-24 md:py-40 bg-paper-white relative overflow-hidden">
+        <div className="container mx-auto px-6 md:px-8 relative z-10">
+          <div className="text-center mb-20 md:mb-32">
+            <h2 className="text-3xl md:text-6xl font-black serif-font text-ink-black mb-6 section-heading">教师风采</h2>
+            <p className="text-stone-500 tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm uppercase font-bold">Mastery & Artistry</p>
           </div>
           
-          <div 
-            ref={scrollContainerRef}
-            onScroll={handleHorizontalScroll}
-            className="flex gap-4 md:gap-8 overflow-x-auto snap-x snap-mandatory pb-8 md:pb-16 no-scrollbar -mx-6 px-6 scroll-smooth"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {comparisons.map((comp) => (
-              <div key={comp.id} className="snap-center shrink-0 w-[88vw] md:w-[90vw] max-w-4xl">
-                <ImageComparison 
-                  initialBeforeUrl={comp.before}
-                  initialAfterUrl={comp.after}
-                  studentName={comp.studentName}
-                  details={comp.details}
-                  onDelete={comparisons.length > 1 ? () => removeComparison(comp.id) : undefined}
-                />
-              </div>
-            ))}
-
-            <div className="snap-center shrink-0 w-[88vw] md:w-[90vw] max-w-sm">
-              <div 
-                onClick={addComparison}
-                className="h-full border-4 border-dashed border-stone-200 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 flex flex-col items-center justify-center cursor-pointer transition-all hover:border-lotus-green hover:bg-lotus-green/5 group bg-white shadow-inner min-h-[400px] md:min-h-[550px]"
-              >
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center shadow-md mb-6 group-hover:scale-110 transition-transform border border-stone-100">
-                  <svg className="w-6 h-6 md:w-8 md:h-8 text-lotus-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path>
-                  </svg>
-                </div>
-                <h4 className="text-xl md:text-2xl font-bold serif-font text-ink-black mb-2 text-center">添加对比案例</h4>
-                <p className="text-stone-400 text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] uppercase font-bold text-center">Add Comparison</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Draggable Progress Bar */}
-          <div className="max-w-xl mx-auto mt-6 md:mt-10 px-4 group/progress">
-            <div 
-              ref={progressTrackRef}
-              onClick={handleProgressBarInteraction}
-              onMouseDown={(e) => {
-                const onMouseMove = (moveEvent: MouseEvent) => handleProgressBarInteraction(moveEvent as any);
-                const onMouseUp = () => {
-                  window.removeEventListener('mousemove', onMouseMove);
-                  window.removeEventListener('mouseup', onMouseUp);
-                };
-                window.addEventListener('mousemove', onMouseMove);
-                window.addEventListener('mouseup', onMouseUp);
-              }}
-              className="relative h-2 md:h-3 w-full bg-stone-200 rounded-full cursor-pointer transition-all hover:h-4"
-            >
-              <div 
-                className="absolute h-full bg-vermilion rounded-full transition-all duration-300 ease-out shadow-[0_0_15px_rgba(178,34,34,0.3)] flex items-center justify-end"
-                style={{ 
-                  width: `${100 / (comparisons.length + 1)}%`, 
-                  left: `${scrollProgress * (1 - (1 / (comparisons.length + 1)))}%` 
-                }}
-              >
-                <div className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full border-2 md:border-4 border-vermilion shadow-lg -mr-2 md:-mr-3 transform scale-0 group-progress-hover:scale-100 transition-transform" />
-              </div>
-            </div>
-          </div>
+          <TeacherShowcase />
         </div>
       </section>
 
