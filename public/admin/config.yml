@@ -1,16 +1,35 @@
-backend:
-  name: github
-  repo: tutumao-5/shufa
-  branch: main
-  base_url: https://shufa1.pages.dev
-
-media_folder: "public/images" 
-public_folder: "/images"
-
 collections:
-  - name: "shufa_works" 
-    label: "十里荷塘作品集"
-    folder: "src/content/works" 
+  # 1. 全局设置 (如头部Logo、标题) - 采用单文件存储
+  - name: "site_config"
+    label: "网站全局设置"
+    files:
+      - file: "src/content/settings/header.json"
+        label: "头部信息设置"
+        name: "header"
+        fields:
+          - {label: "Logo图片", name: "logo", widget: "image", required: false}
+          - {label: "主标题", name: "title", widget: "string", default: "十里荷塘书法工作室"}
+          - {label: "副标题(英文)", name: "subtitle", widget: "string", default: "CALLIGRAPHY STUDIO"}
+
+  # 2. 教师风采 - 采用文件夹存储 (支持添加多位老师)
+  - name: "teachers"
+    label: "教师风采"
+    folder: "src/content/teachers"
+    create: true
+    extension: "json" # 教师数据包含列表，使用 JSON 格式对前端解析最友好
+    format: "json"
+    fields:
+      - {label: "教师姓名", name: "name", widget: "string"}
+      - {label: "教师职称(如:首席讲师)", name: "title", widget: "string"}
+      - {label: "教师艺术照", name: "avatar", widget: "image"}
+      - {label: "教学风格与艺术见解", name: "intro", widget: "text"}
+      - {label: "荣誉奖项(可多条)", name: "awards", widget: "list", field: {label: "奖项描述", name: "award", widget: "string"}}
+      - {label: "作品展示(可多张)", name: "portfolio", widget: "list", field: {label: "作品图", name: "image", widget: "image"}}
+
+  # 3. 学员风采 (沿用我们之前建好的作品集)
+  - name: "shufa_works"
+    label: "学员风采(作品集)"
+    folder: "src/content/works"
     create: true
     fields:
       - {label: "作品标题", name: "title", widget: "string"}
