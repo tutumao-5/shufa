@@ -98,5 +98,80 @@
     <!-- 入口脚本引用，确保在部署环境下正确加载 React -->
     <script type="module" src="./index.tsx"></script>
 <script type="module" src="/index.tsx"></script>
+<script>
+// =================配置区域=================
+const MY_TOKEN = "2c31f388f6714aabaa7710eaa2a8bef6"; 
+// =========================================
+
+document.addEventListener('click', function(e) {
+    // 1. 监听点击：只要点了包含“立即报名”的按钮
+    if (e.target && (e.target.innerText.includes("立即报名") || e.target.textContent.includes("立即报名"))) {
+        
+        // 【核心修复】这次我们要先找到“表单(Form)”，不让它满世界乱跑
+        // 你的代码截图显示表单在一个 ID 为 contact 的区域里，或者直接找页面上唯一的 form 标签
+        var form = document.querySelector('section#contact form') || document.querySelector('form');
+
+        if (!form) {
+            alert("错误：找不到报名表单，请联系管理员");
+            return;
+        }
+
+        // 2. 只在这个表单里面找输入框 (Input) 和下拉框 (Select)
+        // 这样就绝对不会抓到网页上面的“作品对比”之类的内容了
+        var elements = form.querySelectorAll('input, select');
+
+        // 3. 按顺序提取（根据你的截图，表单里正好是这4个顺序）
+        // [0] -> 姓名
+        // [1] -> 电话
+        // [2] -> 学龄段 (下拉框)
+        // [3] -> 校区 (下拉框)
+        
+        var name = elements[0] ? elements[0].value : "未填写";
+        var phone = elements[1] ? elements[1].value : "未填写";
+        var age = elements[2] ? elements[2].value : "未填写";
+        var campus = elements[3] ? elements[3].value : "未填写";
+
+        // 4. 再次校验：如果抓到的电话不对（比如不是数字），说明可能还是有问题，拦截下来
+        // 简单的判断：电话必须包含数字，且长度大于5
+        if (!phone || phone.length < 5 || !/\d/.test(phone)) {
+            console.log("检测到无效电话，可能是误触或抓取错误，已拦截");
+            return; 
+        }
+
+        console.log("抓取成功：", name, phone, age, campus);
+
+        // 5. 发送给 PushPlus
+        fetch('https://www.pushplus.plus/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token: MY_TOKEN,
+                title: '【新学员报名】' + name,
+                content: `
+                    <h3>新学员报名信息：</h3>
+                    <p><b>姓名：</b>${name}</p>
+                    <p><b>电话：</b>${phone}</p>
+                    <p><b>学龄段：</b>${age}</p>
+                    <p><b>意向校区：</b>${campus}</p>
+                    <p><b>提交时间：</b>${new Date().toLocaleString()}</p>
+                `,
+                template: 'html'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.code === 200){
+                alert("报名成功！我们会尽快联系您。");
+                // 可选：清空输入框
+                if(elements[0]) elements[0].value = "";
+                if(elements[1]) elements[1].value = "";
+            } else {
+                console.log("PushPlus返回错误:", data);
+            }
+        })
+        .catch(err => console.error("发送失败", err));
+    }
+});
+</script>
 </body>
 </html>
