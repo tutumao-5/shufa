@@ -1,103 +1,157 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface GalleryItem {
   id: number | string;
   title: string;
-  student: string;
-  category: string;
   imageUrl: string;
-  isCustom?: boolean;
 }
 
-const INITIAL_GALLERY_ITEMS: GalleryItem[] = [];
-
 export const StudentGallery: React.FC = () => {
-  const [items, setItems] = useState<GalleryItem[]>(INITIAL_GALLERY_ITEMS);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [awards, setAwards] = useState<GalleryItem[]>([]);
+  const [works, setWorks] = useState<GalleryItem[]>([]);
+  
+  const awardInputRef = useRef<HTMLInputElement>(null);
+  const workInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'award' | 'work') => {
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       const newItem: GalleryItem = {
         id: Date.now(),
-        title: '新作品展示',
-        student: '本地上传作品',
-        category: '学员风采',
+        title: type === 'award' ? '获奖证书' : '书法作品',
         imageUrl: imageUrl,
-        isCustom: true,
       };
-      setItems([newItem, ...items]);
+      if (type === 'award') {
+        setAwards(prev => [newItem, ...prev]);
+      } else {
+        setWorks(prev => [newItem, ...prev]);
+      }
     }
   };
 
-  const removeItem = (id: number | string) => {
-    setItems(items.filter(item => item.id !== id));
+  const removeItem = (id: number | string, type: 'award' | 'work') => {
+    if (type === 'award') {
+      setAwards(prev => prev.filter(item => item.id !== id));
+    } else {
+      setWorks(prev => prev.filter(item => item.id !== id));
+    }
   };
 
+  // Infinite scroll effect for awards
+  const duplicatedAwards = [...awards, ...awards];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12">
-      <div 
-        onClick={() => fileInputRef.current?.click()}
-        className="group cursor-pointer"
-      >
-        <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] bg-stone-50 border-2 border-dashed border-stone-200 flex flex-col items-center justify-center transition-all duration-500 hover:border-lotus-green hover:bg-lotus-green/5 hover:-translate-y-2 shadow-sm hover:shadow-xl min-h-[300px]">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white flex items-center justify-center shadow-md mb-4 md:mb-6 transition-transform group-hover:scale-110">
-            <svg className="w-6 h-6 md:w-8 md:h-8 text-lotus-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path>
-            </svg>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20">
+      
+      {/* Left Column: Awards (获奖成绩) */}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-2xl md:text-3xl font-black serif-font text-ink-black">获奖成绩</h3>
+            <p className="text-stone-400 text-[10px] md:text-xs tracking-[0.2em] uppercase font-bold">Student Awards</p>
           </div>
-          <div className="text-center">
-            <h5 className="font-bold text-lg md:text-xl serif-font text-ink-black mb-1 md:mb-2">上传学员成果</h5>
-            <p className="text-stone-400 text-[8px] md:text-xs tracking-widest uppercase font-bold">Upload Achievement</p>
-          </div>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            className="hidden" 
-            accept="image/*" 
-            onChange={handleFileUpload} 
-          />
+          <button 
+            onClick={() => awardInputRef.current?.click()}
+            className="bg-vermilion text-white px-4 py-2 rounded-full text-[10px] font-bold tracking-widest hover:bg-ink-black transition-colors shadow-lg"
+          >
+            上传奖状
+          </button>
+          <input type="file" ref={awardInputRef} className="hidden" accept="image/*" onChange={(e) => handleUpload(e, 'award')} />
+        </div>
+
+        <div className="relative h-[400px] md:h-[500px] bg-stone-50 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-stone-100 shadow-inner group">
+          {awards.length > 0 ? (
+            <div className="absolute inset-0 py-10">
+              <motion.div 
+                animate={{ 
+                  y: ["0%", "-50%"] 
+                }}
+                transition={{ 
+                  duration: awards.length * 4, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
+                className="flex flex-col gap-6 px-6 md:px-12"
+              >
+                {duplicatedAwards.map((award, idx) => (
+                  <div key={`${award.id}-${idx}`} className="relative aspect-[4/3] w-full shrink-0 rounded-xl overflow-hidden shadow-md border-4 border-white group/award">
+                    <img src={award.imageUrl} alt="Award" className="w-full h-full object-cover" />
+                    <button 
+                      onClick={() => removeItem(award.id, 'award')}
+                      className="absolute top-2 right-2 bg-vermilion text-white p-1 rounded-full opacity-0 group-hover/award:opacity-100 transition-opacity"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-stone-300 gap-4">
+              <div className="w-16 h-16 rounded-full border-2 border-dashed border-stone-200 flex items-center justify-center">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+              </div>
+              <p className="text-xs font-bold tracking-widest uppercase">暂无奖状，点击上方按钮上传</p>
+            </div>
+          )}
+          {/* Gradient Overlays */}
+          <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-stone-50 to-transparent z-10"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-stone-50 to-transparent z-10"></div>
         </div>
       </div>
 
-      {items.map((item) => (
-        <div key={item.id} className="group cursor-pointer relative">
-          <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] bg-stone-100 shadow-xl transition-all duration-700 group-hover:shadow-2xl group-hover:-translate-y-2">
-            <img 
-              src={item.imageUrl} 
-              alt={item.title} 
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
-            
-            <div className="absolute top-6 left-6 md:top-8 md:left-8 flex justify-between w-[calc(100%-3rem)] md:w-[calc(100%-4rem)]">
-              <span className="bg-white/90 backdrop-blur-md text-ink-black text-[8px] md:text-[10px] font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full shadow-lg tracking-widest uppercase">
-                {item.category}
-              </span>
-              {item.isCustom && (
-                <button 
-                  onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                  className="bg-vermilion text-white p-1.5 md:p-2 rounded-full shadow-lg opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              )}
-            </div>
-            
-            <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8 text-white transform md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
-               <h5 className="font-bold text-lg md:text-2xl serif-font mb-1 md:mb-2 leading-tight">{item.title}</h5>
-               <div className="flex items-center gap-2 md:gap-3 text-white/70 text-xs md:text-sm font-medium">
-                 <span className="w-4 md:w-6 h-px bg-white/30"></span>
-                 <span>{item.student}</span>
-               </div>
-            </div>
+      {/* Right Column: Calligraphy Works (书法成果作品) */}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-2xl md:text-3xl font-black serif-font text-ink-black">书法成果作品</h3>
+            <p className="text-stone-400 text-[10px] md:text-xs tracking-[0.2em] uppercase font-bold">Calligraphy Works</p>
           </div>
+          <button 
+            onClick={() => workInputRef.current?.click()}
+            className="bg-lotus-green text-white px-4 py-2 rounded-full text-[10px] font-bold tracking-widest hover:bg-ink-black transition-colors shadow-lg"
+          >
+            上传作品
+          </button>
+          <input type="file" ref={workInputRef} className="hidden" accept="image/*" onChange={(e) => handleUpload(e, 'work')} />
         </div>
-      ))}
+
+        <div className="grid grid-cols-2 gap-4 md:gap-6">
+          {/* Static Placeholders + Uploaded Works */}
+          <AnimatePresence mode="popLayout">
+            {works.map((work) => (
+              <motion.div 
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                key={work.id} 
+                className="relative aspect-[3/4] rounded-2xl md:rounded-[2rem] overflow-hidden shadow-lg border-4 border-white group/work"
+              >
+                <img src={work.imageUrl} alt="Work" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                <button 
+                  onClick={() => removeItem(work.id, 'work')}
+                  className="absolute top-3 right-3 bg-vermilion text-white p-1.5 rounded-full opacity-0 group-hover/work:opacity-100 transition-opacity shadow-md"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {/* Placeholders */}
+          {Array.from({ length: Math.max(0, 4 - works.length) }).map((_, i) => (
+            <div key={`placeholder-${i}`} className="aspect-[3/4] rounded-2xl md:rounded-[2rem] border-2 border-dashed border-stone-200 bg-stone-50/50 flex flex-col items-center justify-center text-stone-300 gap-2">
+              <svg className="w-6 h-6 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <span className="text-[8px] font-bold uppercase tracking-widest">待上传作品</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 };
