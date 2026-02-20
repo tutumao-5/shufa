@@ -1,0 +1,19 @@
+backend:
+  name: github
+  repo: tutumao-5/shufa
+  branch: main
+  base_url: https://shufa1.pages.dev
+
+media_folder: "public/images" 
+public_folder: "/images"
+
+collections:
+  - name: "shufa_works" 
+    label: "十里荷塘作品集"
+    folder: "src/content/works" 
+    create: true
+    fields:
+      - {label: "作品标题", name: "title", widget: "string"}
+      - {label: "作者", name: "author", widget: "string"}
+      - {label: "作品图片", name: "image", widget: "image"}
+      - {label: "作品描述", name: "body", widget: "markdown"}
