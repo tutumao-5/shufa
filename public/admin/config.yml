@@ -1,5 +1,14 @@
+backend:
+  name: github
+  repo: tutumao-5/shufa
+  branch: main
+  base_url: https://shufa1.pages.dev
+
+media_folder: "public/images"
+public_folder: "/images"
+
 collections:
-  # 1. 全局设置 (如头部Logo、标题) - 采用单文件存储
+  # 1. 全局设置 (如头部Logo、标题)
   - name: "site_config"
     label: "网站全局设置"
     files:
@@ -11,12 +20,12 @@ collections:
           - {label: "主标题", name: "title", widget: "string", default: "十里荷塘书法工作室"}
           - {label: "副标题(英文)", name: "subtitle", widget: "string", default: "CALLIGRAPHY STUDIO"}
 
-  # 2. 教师风采 - 采用文件夹存储 (支持添加多位老师)
+  # 2. 教师风采
   - name: "teachers"
     label: "教师风采"
     folder: "src/content/teachers"
     create: true
-    extension: "json" # 教师数据包含列表，使用 JSON 格式对前端解析最友好
+    extension: "json"
     format: "json"
     fields:
       - {label: "教师姓名", name: "name", widget: "string"}
