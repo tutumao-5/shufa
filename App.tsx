@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { COURSES } from './constants';
 import { TeacherShowcase } from './components/TeacherShowcase';
 import { InkCanvas } from './components/InkCanvas';
 import { StudentGallery } from './components/StudentGallery';
+import localLogo from './logo.png'; // 引入同目录下的本地 Logo 图片
 
 const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [logoImage, setLogoImage] = useState<string | null>('/logo.png');
+  const [logoImage, setLogoImage] = useState<string | null>(localLogo); // 将导入的图片设为默认值
   
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -118,7 +118,7 @@ const App: React.FC = () => {
               className="w-8 h-8 md:w-12 md:h-12 bg-ink-black rounded-full flex items-center justify-center text-white transition-all duration-500 hover:bg-vermilion cursor-pointer overflow-hidden border-2 border-transparent hover:border-white shadow-md relative group"
             >
               {logoImage ? (
-                <img src={logoImage} alt="Society Logo" className="w-full h-full object-cover" />
+                <img src={logoImage} alt="十里荷塘书法工作室 Logo" className="w-full h-full object-cover" />
               ) : (
                 <LotusIcon />
               )}
