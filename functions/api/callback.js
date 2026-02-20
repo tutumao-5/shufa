@@ -17,37 +17,22 @@ export async function onRequest(context) {
     const data = await response.json();
     const token = data.access_token;
 
-    if (!token) throw new Error('GitHub 未返回 token，错误详情: ' + JSON.stringify(data));
+    if (!token) throw new Error('获取 Token 失败');
 
-    // 增加了可视化界面和强行关闭的兜底机制
+    // 直接向主窗口发送带有 Token 的成功消息，随后立刻关闭自己
     const script = `
       <!DOCTYPE html>
-      <html lang="zh-CN">
-      <head><meta charset="UTF-8"><title>授权成功</title></head>
-      <body style="display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; background-color:#f8f9fa;">
-        <div style="text-align:center;">
-          <h2 style="color:#28a745;">✅ 授权成功！</h2>
-          <p style="color:#6c757d;">正在返回后台系统，请稍候...</p>
-        </div>
+      <html>
+      <head><meta charset="UTF-8"><title>正在返回后台...</title></head>
+      <body>
         <script>
-          const receiveMessage = (message) => {
-            if (message.data === "authorizing:github") {
-              window.opener.postMessage(
-                'authorization:github:success:{"token":"${token}","provider":"github"}',
-                message.origin
-              );
-              window.removeEventListener("message", receiveMessage, false);
-              // 发送成功后，1秒后自动关闭自己
-              setTimeout(() => window.close(), 1000);
-            }
+          const tokenMsg = 'authorization:github:success:{"token":"${token}","provider":"github"}';
+          if (window.opener) {
+            window.opener.postMessage(tokenMsg, '*');
+            setTimeout(() => window.close(), 500);
+          } else {
+            document.write("对接失败：找不到主窗口。");
           }
-          window.addEventListener("message", receiveMessage, false);
-          window.opener.postMessage("authorizing:github", "*");
-          
-          // 兜底机制：如果 3 秒后弹窗还没关，提示用户手动操作
-          setTimeout(() => {
-            document.body.innerHTML = '<div style="text-align:center;"><h2 style="color:#28a745;">✅ 授权已完成</h2><p style="color:#6c757d;">如果窗口没有自动关闭，请直接<b>手动关闭这个页面</b>，回到原网页刷新即可进入后台。</p></div>';
-          }, 3000);
         </script>
       </body>
       </html>
