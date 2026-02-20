@@ -1,4 +1,4 @@
-
+import WorksGallery from './components/WorksGallery';
 import React, { useState, useEffect, useRef } from 'react';
 import { COURSES } from './constants';
 import { TeacherShowcase } from './components/TeacherShowcase';
