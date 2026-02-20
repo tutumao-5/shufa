@@ -2,7 +2,7 @@ backend:
   name: github
   repo: tutumao-5/shufa
   branch: main
-  base_url: https://shufa1.pages.dev/api
+  base_url: https://shufa1.pages.dev
 
 media_folder: "public/images" 
 public_folder: "/images"
