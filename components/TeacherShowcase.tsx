@@ -21,18 +21,20 @@ export const TeacherShowcase: React.FC = () => {
       id: 1,
       name: '王海芬',
       photo: `${import.meta.env.BASE_URL}images/faculty/wang-haifen-portrait.png`,
+      // 更新了最新的资历和奖项 (选项一)
       awards: [
-        '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛二等奖。',
-        '乐清市教育工会关于开展庆祝第132个“五一”国际劳动节乐清市教职工书法比赛获三等奖',
-        '温州市第九届视觉艺术大赛中入展',
-        '胶州大白菜.乡村振兴主题文化公益展获佳作奖',
-        '吉林省第二届“德翔杯”迎新春书画大赛中入展',
-        '乐清市“知临杯”书法篆刻大展中入展',
-        '笔墨雅韵奖第二届全国书法公益大赛中入展',
-        '乐清市书法家协会会员-王海芬'
+        '乐清市硬笔书法家协会委员',
+        '乐清市书法家协会（软笔）会员',
+        '作品多次在省内外书画大赛中荣获大奖',
+        '乐清市机关献礼建党百年华诞书画比赛二等奖',
+        '乐清市教职工书法比赛三等奖',
+        '温州市第九届视觉艺术大赛入展',
+        '吉林省第二届“德翔杯”迎新春书画大赛入展',
+        '乐清市“知临杯”书法篆刻大展入展'
       ],
       works: Array.from({ length: 16 }, (_, i) => `${import.meta.env.BASE_URL}images/faculty/works/work-${i + 1}.png`),
-      bio: '王海芬老师致力于书法教育多年，以传承传统文化为己任，教学风格严谨而富有激情。'
+      // 更新了选项一的校长简介文案
+      bio: '【教学承诺】校长亲自执教\n\n书法之教，贵在“懂孩子、通教育”。王老师深耕一线教学25载，专注书法教育12年，集深厚的教育学积淀与极致的耐心于一身。\n\n我们深信，学习书法不仅是技法的磨练，更是心理与审美的共鸣。选择一位懂教育的专业良师，将为孩子开启一段受益终身的艺术之旅。'
     }
   ]);
 
@@ -132,7 +134,7 @@ export const TeacherShowcase: React.FC = () => {
                       value={teacher.bio}
                       onChange={(e) => handleUpdateTeacher(teacher.id, 'bio', e.target.value)}
                       placeholder="在此输入教师简介，描述其教学风格与艺术见解..."
-                      className="w-full text-stone-600 leading-relaxed text-base md:text-lg italic serif-font bg-transparent border-none focus:ring-0 outline-none min-h-[80px] resize-none relative z-10"
+                      className="w-full text-stone-600 leading-relaxed text-base md:text-lg italic serif-font bg-transparent border-none focus:ring-0 outline-none min-h-[140px] resize-none relative z-10"
                     />
                   </div>
 
