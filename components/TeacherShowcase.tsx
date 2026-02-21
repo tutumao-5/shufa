@@ -21,7 +21,6 @@ export const TeacherShowcase: React.FC = () => {
       id: 1,
       name: '王海芬',
       photo: `${import.meta.env.BASE_URL}images/faculty/wang-haifen-portrait.png`,
-      // 更新了最新的资历和奖项 (选项一)
       awards: [
         '乐清市硬笔书法家协会委员',
         '乐清市书法家协会（软笔）会员',
@@ -33,8 +32,8 @@ export const TeacherShowcase: React.FC = () => {
         '乐清市“知临杯”书法篆刻大展入展'
       ],
       works: Array.from({ length: 16 }, (_, i) => `${import.meta.env.BASE_URL}images/faculty/works/work-${i + 1}.png`),
-      // 更新了选项一的校长简介文案
-      bio: '【教学承诺】校长亲自执教\n\n书法之教，贵在“懂孩子、通教育”。王老师深耕一线教学25载，专注书法教育12年，集深厚的教育学积淀与极致的耐心于一身。\n\n我们深信，学习书法不仅是技法的磨练，更是心理与审美的共鸣。选择一位懂教育的专业良师，将为孩子开启一段受益终身的艺术之旅。'
+      // 优化：去掉了多余的换行符 \n
+      bio: '【教学承诺】校长亲自执教\n书法之教，贵在“懂孩子、通教育”。王老师深耕一线教学25载，专注书法教育12年，集深厚的教育学积淀与极致的耐心于一身。\n我们深信，学习书法不仅是技法的磨练，更是心理与审美的共鸣。选择一位懂教育的专业良师，将为孩子开启一段受益终身的艺术之旅。'
     }
   ]);
 
@@ -55,19 +54,6 @@ export const TeacherShowcase: React.FC = () => {
     if (container) {
       const scrollWidth = container.scrollWidth - container.clientWidth;
       container.scrollLeft = (progress / 100) * scrollWidth;
-    }
-  };
-
-  const handleUpdateTeacher = (id: number, field: keyof Teacher, value: any) => {
-    setTeachers(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
-  };
-
-  const handleAwardChange = (id: number, index: number, value: string) => {
-    const teacher = teachers.find(t => t.id === id);
-    if (teacher) {
-      const newAwards = [...teacher.awards];
-      newAwards[index] = value;
-      handleUpdateTeacher(id, 'awards', newAwards);
     }
   };
 
@@ -127,33 +113,28 @@ export const TeacherShowcase: React.FC = () => {
               {/* Content Section */}
               <div className="lg:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-hidden">
                 <div className="space-y-10">
-                  {/* Bio */}
+                  
+                  {/* Bio - 核心优化：将 textarea 替换为自动适应高度的 div */}
                   <div className="relative">
                     <div className="absolute -top-4 -left-4 text-6xl font-serif text-stone-100 select-none">“</div>
-                    <textarea 
-                      value={teacher.bio}
-                      onChange={(e) => handleUpdateTeacher(teacher.id, 'bio', e.target.value)}
-                      placeholder="在此输入教师简介，描述其教学风格与艺术见解..."
-                      className="w-full text-stone-600 leading-relaxed text-base md:text-lg italic serif-font bg-transparent border-none focus:ring-0 outline-none min-h-[140px] resize-none relative z-10"
-                    />
+                    <div className="w-full text-stone-600 leading-loose text-base md:text-lg italic serif-font relative z-10 whitespace-pre-line">
+                      {teacher.bio}
+                    </div>
                   </div>
 
-                  {/* Awards */}
+                  {/* Awards - 顺便将奖项也改为了纯展示的文本，防止家长误触键盘弹出 */}
                   <div className="space-y-4">
                     <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
                       <span className="w-8 h-px bg-vermilion/30"></span>
                       荣誉奖项 / Honors
                     </h4>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {teacher.awards.map((award, i) => (
                         <div key={i} className="flex items-start gap-3 group/award">
-                          <span className="w-1 h-1 bg-vermilion rounded-full mt-2.5 shrink-0 opacity-40 group-hover/award:opacity-100 transition-opacity"></span>
-                          <input 
-                            value={award}
-                            onChange={(e) => handleAwardChange(teacher.id, i, e.target.value)}
-                            placeholder={`荣誉奖项 ${i + 1}`}
-                            className="text-sm text-stone-500 font-medium bg-transparent outline-none w-full border-b border-transparent hover:border-stone-100 focus:border-vermilion/30 transition-colors py-1"
-                          />
+                          <span className="w-1 h-1 bg-vermilion rounded-full mt-2.5 shrink-0 opacity-60"></span>
+                          <div className="text-sm text-stone-600 font-medium">
+                            {award}
+                          </div>
                         </div>
                       ))}
                     </div>
