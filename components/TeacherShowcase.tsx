@@ -12,9 +12,12 @@ interface Teacher {
 
 export const TeacherShowcase: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState<{ [key: number]: number }>({});
-  // 用于控制图片放大弹窗的状态
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
+  // 新增：用于获取滚动容器的 DOM 引用，以便滑块可以控制它
+  const scrollContainerRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
   const [teachers, setTeachers] = useState<Teacher[]>([
     {
       id: 1,
@@ -30,12 +33,13 @@ export const TeacherShowcase: React.FC = () => {
         '笔墨雅韵奖第二届全国书法公益大赛中入展',
         '乐清市书法家协会会员-王海芬'
       ],
-      // 自动生成 work-1.png 到 work-6.png 的路径
+      // 适配您目前的进度：先生成 6 张图片的路径
       works: Array.from({ length: 6 }, (_, i) => `/images/faculty/works/work-${i + 1}.png`),
       bio: '王海芬老师致力于书法教育多年，以传承传统文化为己任，教学风格严谨而富有激情。'
     }
   ]);
 
+  // 监听容器本身的滚动，更新进度条
   const handleScroll = (id: number) => (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollWidth = container.scrollWidth - container.clientWidth;
@@ -45,8 +49,37 @@ export const TeacherShowcase: React.FC = () => {
     }
   };
 
+  // 新增：监听滑块的拖动，并反向控制容器的滚动
+  const handleSliderChange = (id: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const progress = Number(e.target.value);
+    setScrollProgress(prev => ({ ...prev, [id]: progress }));
+    
+    const container = scrollContainerRefs.current[id];
+    if (container) {
+      const scrollWidth = container.scrollWidth - container.clientWidth;
+      container.scrollLeft = (progress / 100) * scrollWidth;
+    }
+  };
+
   const handleUpdateTeacher = (id: number, field: keyof Teacher, value: any) => {
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+  };
+
+  const handleImageUpload = (id: number, field: 'photo' | 'works', index?: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      if (field === 'photo') {
+        handleUpdateTeacher(id, 'photo', url);
+      } else if (typeof index === 'number') {
+        const teacher = teachers.find(t => t.id === id);
+        if (teacher) {
+          const newWorks = [...teacher.works];
+          newWorks[index] = url;
+          handleUpdateTeacher(id, 'works', newWorks);
+        }
+      }
+    }
   };
 
   const handleAwardChange = (id: number, index: number, value: string) => {
@@ -167,26 +200,27 @@ export const TeacherShowcase: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Portfolio */}
+                  {/* Portfolio - 真正的可拖拽组件组合 */}
                   <div className="space-y-6">
                     <div className="flex items-center justify-between pr-4">
                       <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
                         <span className="w-8 h-px bg-vermilion/30"></span>
                         作品展示 / Portfolio
                       </h4>
-                      <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">Slide to view / 点击放大</span>
+                      <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">拖动滑块 / 点击放大</span>
                     </div>
                     
                     <div className="relative group/scroll">
+                      {/* 隐藏原生滚动条，仅保留滑动功能 */}
                       <div 
+                        ref={el => scrollContainerRefs.current[teacher.id] = el}
                         onScroll={handleScroll(teacher.id)}
-                        className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory"
+                        className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                       >
                         {teacher.works.map((work, i) => (
                           <div 
                             key={i} 
-                            // 点击触发弹窗
                             onClick={() => work ? setSelectedImage(work) : null}
                             className={`w-32 md:w-40 shrink-0 aspect-square rounded-xl overflow-hidden shadow-sm group/work bg-stone-50 border border-stone-100 relative snap-start ${work ? 'cursor-pointer' : ''}`}
                           >
@@ -204,7 +238,6 @@ export const TeacherShowcase: React.FC = () => {
                                 </svg>
                               </div>
                             )}
-                            {/* 悬浮提示：放大 */}
                             {work && (
                                <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
                                   <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">
@@ -216,15 +249,22 @@ export const TeacherShowcase: React.FC = () => {
                         ))}
                       </div>
 
-                      {/* 修复后的 Progress Bar */}
-                      <div className="absolute bottom-2 left-0 right-0 h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                      {/* 自定义可拖拽进度条 */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full">
+                        {/* 视觉上的红色进度条 */}
                         <motion.div 
-                          className="h-full bg-vermilion rounded-full"
-                          // 设置初始15%的宽度，确保刚打开页面时进度条可见
-                          initial={{ width: "15%" }}
-                          // 滑动时，保证最小宽度为15%，最大为100%
+                          className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none"
                           animate={{ width: `${Math.max(scrollProgress[teacher.id] || 0, 15)}%` }}
                           transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+                        />
+                        {/* 隐藏的原生范围选择器（用于接收拖拽事件） */}
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="100" 
+                          value={scrollProgress[teacher.id] || 0}
+                          onChange={handleSliderChange(teacher.id)}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
                       </div>
                     </div>
@@ -268,9 +308,8 @@ export const TeacherShowcase: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 md:p-8"
-            onClick={() => setSelectedImage(null)} // 点击背景关闭
+            onClick={() => setSelectedImage(null)} 
           >
-            {/* 关闭按钮 */}
             <button 
               className="absolute top-6 right-6 text-white/70 hover:text-white w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors z-[110]"
               onClick={(e) => { 
@@ -282,7 +321,6 @@ export const TeacherShowcase: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
-            {/* 放大显示的图片 */}
             <motion.img 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -291,7 +329,7 @@ export const TeacherShowcase: React.FC = () => {
               src={selectedImage} 
               alt="Enlarged artwork" 
               className="max-w-full max-h-full object-contain shadow-2xl rounded-sm"
-              onClick={(e) => e.stopPropagation()} // 阻止点击图片自身时触发关闭
+              onClick={(e) => e.stopPropagation()} 
             />
           </motion.div>
         )}
