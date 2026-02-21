@@ -55,22 +55,22 @@ export const StudentGallery: React.FC = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 relative">
       
-      {/* ================= 左侧：获奖成绩 (Awards) - 改为水平滑动 ================= */}
+      {/* ================= 左侧：获奖成绩 (Awards) ================= */}
       <div className="space-y-6 md:space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">获奖成绩</h3>
             <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Student Awards</p>
           </div>
-          <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">左右滑动 / 点击放大</span>
+          <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动进度块 / 点击放大</span>
         </div>
 
         <div className="relative group/scroll">
-          {/* 水平滚动容器 */}
+          {/* 核心修改：改为 grid 布局，限定 3 行 (grid-rows-3)，横向流 (grid-flow-col) */}
           <div 
             ref={scrollContainerRef}
             onScroll={handleScroll}
-            className="flex gap-4 overflow-x-auto pb-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+            className="grid grid-rows-3 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {awards.length > 0 ? (
@@ -78,10 +78,10 @@ export const StudentGallery: React.FC = () => {
                 <div 
                   key={award.id} 
                   onClick={() => setSelectedImage(award.imageUrl)}
-                  className="w-48 md:w-64 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-md border-4 border-white group/award cursor-pointer snap-start relative"
+                  // 调整了单张图片的尺寸 (w-36 md:w-48)，使三行叠加的高度刚好与右侧内容协调
+                  className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative"
                 >
                   <img src={award.imageUrl} alt={award.title} className="w-full h-full object-cover group-hover/award:scale-105 transition-transform duration-700" />
-                  {/* 悬停提示 */}
                   <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
                      <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
                        点击放大
@@ -90,7 +90,7 @@ export const StudentGallery: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div className="w-full aspect-[4/3] rounded-xl border-2 border-stone-100 flex flex-col items-center justify-center text-stone-300 gap-4">
+              <div className="row-span-3 w-full aspect-[4/3] rounded-xl border-2 border-stone-100 flex flex-col items-center justify-center text-stone-300 gap-4">
                 <div className="w-16 h-16 rounded-full border-2 border-stone-100 flex items-center justify-center">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
@@ -120,7 +120,7 @@ export const StudentGallery: React.FC = () => {
         </div>
       </div>
 
-      {/* ================= 右侧：书法成果作品 (Works) - 暂时保持原样 ================= */}
+      {/* ================= 右侧：书法成果作品 (Works) ================= */}
       <div className="space-y-6 md:space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
