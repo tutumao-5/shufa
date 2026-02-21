@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Teacher {
   id: number;
@@ -11,12 +11,15 @@ interface Teacher {
 }
 
 export const TeacherShowcase: React.FC = () => {
+  const [scrollProgress, setScrollProgress] = useState<{ [key: number]: number }>({});
+  // 用于控制图片放大弹窗的状态
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
   const [teachers, setTeachers] = useState<Teacher[]>([
     {
-      id: 1, // 这里使用固定ID而不是Date.now()，因为这是初始数据
+      id: 1,
       name: '王海芬',
-      // 下面这行是关键修改：填入你上传的图片路径
-      photo: '/images/faculty/wang-haifen-portrait.png', 
+      photo: '/images/faculty/wang-haifen-portrait.png',
       awards: [
         '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛二等奖。',
         '乐清市教育工会关于开展庆祝第132个“五一”国际劳动节乐清市教职工书法比赛获三等奖',
@@ -27,33 +30,23 @@ export const TeacherShowcase: React.FC = () => {
         '笔墨雅韵奖第二届全国书法公益大赛中入展',
         '乐清市书法家协会会员-王海芬'
       ],
-      works: ['', '', ''],
-      // 可以在这里填入老师的简介，如果不填会显示占位符
-      bio: '王海芬老师致力于书法教育多年，以传承传统文化为己任，教学风格严谨而富有激情。' 
+      // 自动生成 work-1.png 到 work-6.png 的路径
+      works: Array.from({ length: 6 }, (_, i) => `/images/faculty/works/work-${i + 1}.png`),
+      bio: '王海芬老师致力于书法教育多年，以传承传统文化为己任，教学风格严谨而富有激情。'
     }
   ]);
 
-  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const handleScroll = (id: number) => (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const scrollWidth = container.scrollWidth - container.clientWidth;
+    if (scrollWidth > 0) {
+      const progress = (container.scrollLeft / scrollWidth) * 100;
+      setScrollProgress(prev => ({ ...prev, [id]: progress }));
+    }
+  };
 
   const handleUpdateTeacher = (id: number, field: keyof Teacher, value: any) => {
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
-  };
-
-  const handleImageUpload = (id: number, field: 'photo' | 'works', index?: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      if (field === 'photo') {
-        handleUpdateTeacher(id, 'photo', url);
-      } else if (typeof index === 'number') {
-        const teacher = teachers.find(t => t.id === id);
-        if (teacher) {
-          const newWorks = [...teacher.works];
-          newWorks[index] = url;
-          handleUpdateTeacher(id, 'works', newWorks);
-        }
-      }
-    }
   };
 
   const handleAwardChange = (id: number, index: number, value: string) => {
@@ -71,7 +64,7 @@ export const TeacherShowcase: React.FC = () => {
       name: '',
       photo: '',
       awards: ['', '', ''],
-      works: ['', '', ''],
+      works: [],
       bio: ''
     }]);
   };
@@ -83,7 +76,7 @@ export const TeacherShowcase: React.FC = () => {
   };
 
   return (
-    <div className="space-y-20 md:space-y-32">
+    <div className="space-y-20 md:space-y-32 relative">
       {teachers.map((teacher, index) => (
         <motion.div 
           key={teacher.id}
@@ -109,34 +102,26 @@ export const TeacherShowcase: React.FC = () => {
               {/* Photo Section */}
               <div className="lg:w-2/5 relative overflow-hidden group/photo">
                 <div 
-                  onClick={() => fileInputRefs.current[`photo-${teacher.id}`]?.click()}
-                  className="aspect-[4/5] lg:aspect-auto lg:h-full bg-stone-50 cursor-pointer relative"
+                  className="aspect-[4/5] lg:aspect-auto lg:h-full bg-stone-50 relative"
                 >
                   {teacher.photo ? (
                     <img 
                       src={teacher.photo} 
                       alt={teacher.name} 
-                      className="w-full h-full object-cover grayscale group-hover/photo:grayscale-0 group-hover/photo:scale-105 transition-all duration-1000"
+                      className="w-full h-full object-cover group-hover/photo:scale-105 transition-all duration-1000"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-stone-300 gap-3">
-                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-stone-200 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full border-2 border-stone-100 flex items-center justify-center">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4"></path>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                       </div>
-                      <span className="text-[10px] font-bold tracking-widest uppercase">上传艺术照</span>
+                      <span className="text-[10px] font-bold tracking-widest uppercase">暂无照片</span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/0 group-hover/photo:bg-black/5 transition-colors" />
-                  <input 
-                    type="file" 
-                    ref={el => fileInputRefs.current[`photo-${teacher.id}`] = el}
-                    className="hidden" 
-                    accept="image/*" 
-                    onChange={handleImageUpload(teacher.id, 'photo')} 
-                  />
+                  <div className="absolute inset-0 bg-black/0 transition-colors" />
                 </div>
                 
                 {/* Vertical Name Tag */}
@@ -148,7 +133,7 @@ export const TeacherShowcase: React.FC = () => {
               </div>
 
               {/* Content Section */}
-              <div className="lg:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-white">
+              <div className="lg:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-hidden">
                 <div className="space-y-10">
                   {/* Bio */}
                   <div className="relative">
@@ -163,8 +148,8 @@ export const TeacherShowcase: React.FC = () => {
 
                   {/* Awards */}
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-black tracking-[0.3em] text-stone-300 uppercase flex items-center gap-3">
-                      <span className="w-6 h-px bg-stone-100"></span>
+                    <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
+                      <span className="w-8 h-px bg-vermilion/30"></span>
                       荣誉奖项 / Honors
                     </h4>
                     <div className="space-y-2">
@@ -183,50 +168,71 @@ export const TeacherShowcase: React.FC = () => {
                   </div>
 
                   {/* Portfolio */}
-                  <div className="space-y-4">
-                    <h4 className="text-[10px] font-black tracking-[0.3em] text-stone-300 uppercase flex items-center gap-3">
-                      <span className="w-6 h-px bg-stone-100"></span>
-                      作品展示 / Portfolio
-                    </h4>
-                    <div className="grid grid-cols-3 gap-3 md:gap-4">
-                      {teacher.works.map((work, i) => (
-                        <div 
-                          key={i} 
-                          onClick={() => fileInputRefs.current[`work-${teacher.id}-${i}`]?.click()}
-                          className="aspect-square rounded-xl overflow-hidden shadow-sm group/work cursor-pointer bg-stone-50 border border-stone-100 relative"
-                        >
-                          {work ? (
-                            <img 
-                              src={work} 
-                              alt="Work" 
-                              className="w-full h-full object-cover group-hover/work:scale-110 transition-transform duration-700"
-                              referrerPolicy="no-referrer"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-stone-200">
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4"></path>
-                              </svg>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/5 transition-colors flex items-center justify-center">
-                             <span className="bg-white/90 px-2 py-1 rounded-full text-[8px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">上传</span>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between pr-4">
+                      <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
+                        <span className="w-8 h-px bg-vermilion/30"></span>
+                        作品展示 / Portfolio
+                      </h4>
+                      <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">Slide to view / 点击放大</span>
+                    </div>
+                    
+                    <div className="relative group/scroll">
+                      <div 
+                        onScroll={handleScroll(teacher.id)}
+                        className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                      >
+                        {teacher.works.map((work, i) => (
+                          <div 
+                            key={i} 
+                            // 点击触发弹窗
+                            onClick={() => work ? setSelectedImage(work) : null}
+                            className={`w-32 md:w-40 shrink-0 aspect-square rounded-xl overflow-hidden shadow-sm group/work bg-stone-50 border border-stone-100 relative snap-start ${work ? 'cursor-pointer' : ''}`}
+                          >
+                            {work ? (
+                              <img 
+                                src={work} 
+                                alt={`Work ${i+1}`} 
+                                className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center text-stone-200">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                              </div>
+                            )}
+                            {/* 悬浮提示：放大 */}
+                            {work && (
+                               <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                                  <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">
+                                    点击放大
+                                  </span>
+                               </div>
+                            )}
                           </div>
-                          <input 
-                            type="file" 
-                            ref={el => fileInputRefs.current[`work-${teacher.id}-${i}`] = el}
-                            className="hidden" 
-                            accept="image/*" 
-                            onChange={handleImageUpload(teacher.id, 'works', i)} 
-                          />
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+
+                      {/* 修复后的 Progress Bar */}
+                      <div className="absolute bottom-2 left-0 right-0 h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                        <motion.div 
+                          className="h-full bg-vermilion rounded-full"
+                          // 设置初始15%的宽度，确保刚打开页面时进度条可见
+                          initial={{ width: "15%" }}
+                          // 滑动时，保证最小宽度为15%，最大为100%
+                          animate={{ width: `${Math.max(scrollProgress[teacher.id] || 0, 15)}%` }}
+                          transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer Quote/Tag */}
-                <div className="mt-12 pt-8 border-t border-stone-50 flex justify-between items-center">
+                <div className="mt-12 pt-8 border-t border-stone-50 flex justify-between items-center shrink-0">
                    <div className="flex items-center gap-2">
                      <div className="w-2 h-2 rounded-full bg-lotus-green"></div>
                      <span className="text-[10px] font-bold text-stone-400 tracking-widest uppercase">Professional Faculty</span>
@@ -253,6 +259,43 @@ export const TeacherShowcase: React.FC = () => {
           新增教师展示
         </button>
       </div>
+
+      {/* 图片放大全屏弹窗 */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 md:p-8"
+            onClick={() => setSelectedImage(null)} // 点击背景关闭
+          >
+            {/* 关闭按钮 */}
+            <button 
+              className="absolute top-6 right-6 text-white/70 hover:text-white w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors z-[110]"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                setSelectedImage(null); 
+              }}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            {/* 放大显示的图片 */}
+            <motion.img 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              src={selectedImage} 
+              alt="Enlarged artwork" 
+              className="max-w-full max-h-full object-contain shadow-2xl rounded-sm"
+              onClick={(e) => e.stopPropagation()} // 阻止点击图片自身时触发关闭
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
