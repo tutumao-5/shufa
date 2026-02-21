@@ -14,7 +14,7 @@ export const TeacherShowcase: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState<{ [key: number]: number }>({});
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
-  // 新增：用于获取滚动容器的 DOM 引用，以便滑块可以控制它
+  // 用于获取滚动容器的 DOM 引用，以便滑块可以控制它
   const scrollContainerRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
@@ -22,7 +22,8 @@ export const TeacherShowcase: React.FC = () => {
     {
       id: 1,
       name: '王海芬',
-      photo: '/images/faculty/wang-haifen-portrait.png',
+      // 使用 BASE_URL 确保路径在在线 IDE 和生产环境都正确
+      photo: `${import.meta.env.BASE_URL}images/faculty/wang-haifen-portrait.png`,
       awards: [
         '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛二等奖。',
         '乐清市教育工会关于开展庆祝第132个“五一”国际劳动节乐清市教职工书法比赛获三等奖',
@@ -33,8 +34,8 @@ export const TeacherShowcase: React.FC = () => {
         '笔墨雅韵奖第二届全国书法公益大赛中入展',
         '乐清市书法家协会会员-王海芬'
       ],
-      // 适配您目前的进度：先生成 6 张图片的路径
-      works: Array.from({ length: 6 }, (_, i) => `/images/faculty/works/work-${i + 1}.png`),
+      // 核心修改：将 length 改为 16，并使用 BASE_URL 拼接路径
+      works: Array.from({ length: 16 }, (_, i) => `${import.meta.env.BASE_URL}images/faculty/works/work-${i + 1}.png`),
       bio: '王海芬老师致力于书法教育多年，以传承传统文化为己任，教学风格严谨而富有激情。'
     }
   ]);
@@ -49,7 +50,7 @@ export const TeacherShowcase: React.FC = () => {
     }
   };
 
-  // 新增：监听滑块的拖动，并反向控制容器的滚动
+  // 监听滑块的拖动，并反向控制容器的滚动
   const handleSliderChange = (id: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const progress = Number(e.target.value);
     setScrollProgress(prev => ({ ...prev, [id]: progress }));
