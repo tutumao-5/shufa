@@ -3,18 +3,19 @@ import { COURSES } from './constants';
 import { TeacherShowcase } from './components/TeacherShowcase';
 import { InkCanvas } from './components/InkCanvas';
 import { StudentGallery } from './components/StudentGallery';
-import localLogo from './logo.png';
+import localLogo from './logo.png'; // 引入同目录下的本地 Logo 图片
 
 const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [logoImage, setLogoImage] = useState<string | null>(localLogo);
+  const [logoImage, setLogoImage] = useState<string | null>(localLogo); // 将导入的图片设为默认值
   
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const progressTrackRef = useRef<HTMLDivElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  // 表单状态管理
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -24,6 +25,7 @@ const App: React.FC = () => {
   const [formError, setFormError] = useState('');
   const [isSubmitSuccess, setIsSubmitSuccess] = useState(false);
 
+  // 导航项配置
   const navItems = [
     { name: '首页', id: 'home' },
     { name: '教学优势', id: 'advantages' },
@@ -109,7 +111,7 @@ const App: React.FC = () => {
       <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
         scrolled ? 'glass-nav py-2 shadow-md' : 'bg-paper-white/30 py-4 md:py-6'
       }`}>
-        <div className="container mx-auto max-w-7xl px-4 md:px-8 flex justify-between items-center">
+        <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
           <div className="flex items-center gap-2 md:gap-4">
             <div 
               onClick={() => logoInputRef.current?.click()}
@@ -183,7 +185,7 @@ const App: React.FC = () => {
       {/* Hero Section */}
       <section id="home" className="relative min-h-[90vh] md:h-screen flex items-center justify-center overflow-hidden pt-20">
         <InkCanvas />
-        <div className="container mx-auto max-w-7xl px-6 md:px-8 relative z-10 grid lg:grid-cols-12 gap-8 md:gap-12 items-center">
+        <div className="container mx-auto px-6 md:px-8 relative z-10 grid lg:grid-cols-12 gap-8 md:gap-12 items-center">
           <div className="lg:col-span-8 text-left animate-in fade-in slide-in-from-left-20 duration-1000">
             <div className="inline-flex items-center gap-3 md:gap-4 mb-4 md:mb-8">
               <span className="h-px w-8 md:w-12 bg-vermilion"></span>
@@ -227,7 +229,7 @@ const App: React.FC = () => {
 
       {/* Advantages Section */}
       <section id="advantages" className="py-20 md:py-32 relative bg-sage/30 overflow-hidden">
-        <div className="container mx-auto max-w-7xl px-6 md:px-8">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="max-w-3xl mb-12 md:mb-24">
             <h2 className="text-3xl md:text-6xl font-bold mb-4 md:mb-8 serif-font text-ink-black section-heading text-left !mx-0">教学核心优势</h2>
             <p className="text-base md:text-xl text-stone-500 leading-relaxed md:leading-loose">我们深知，书法教育不仅是技法的传授，更是审美的唤醒与性格的磨砺。</p>
@@ -251,7 +253,7 @@ const App: React.FC = () => {
 
       {/* Teacher Showcase Section */}
       <section id="teachers" className="py-24 md:py-40 bg-paper-white relative overflow-hidden">
-        <div className="container mx-auto max-w-7xl px-6 md:px-8 relative z-10">
+        <div className="container mx-auto px-6 md:px-8 relative z-10">
           <div className="text-center mb-20 md:mb-32">
             <h2 className="text-3xl md:text-6xl font-black serif-font text-ink-black mb-6 section-heading">教师风采</h2>
             <p className="text-stone-500 tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm uppercase font-bold">Mastery & Artistry</p>
@@ -263,7 +265,7 @@ const App: React.FC = () => {
 
       {/* Gallery Section */}
       <section id="gallery" className="py-20 md:py-32 bg-white">
-        <div className="container mx-auto max-w-7xl px-6 md:px-8">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-20 gap-6">
             <div className="max-w-2xl">
               <h2 className="text-3xl md:text-5xl font-bold serif-font text-ink-black mb-4">笔墨芳华 · 学员风采</h2>
@@ -277,7 +279,7 @@ const App: React.FC = () => {
 
       {/* Course Section */}
       <section id="courses" className="py-20 md:py-32 bg-sage/20 relative overflow-hidden">
-        <div className="container mx-auto max-w-7xl px-6 md:px-8">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="grid lg:grid-cols-12 gap-10 md:gap-20">
             <div className="lg:col-span-4">
               <h2 className="text-3xl md:text-5xl font-bold serif-font text-ink-black mb-8 md:mb-12 leading-tight">精研课程体系</h2>
@@ -340,7 +342,7 @@ const App: React.FC = () => {
 
       {/* Contact Section */}
       <section id="contact" className="py-20 md:py-32 bg-white relative">
-        <div className="container mx-auto max-w-7xl px-6 md:px-8">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="bg-paper-white rounded-[2.5rem] md:rounded-[5rem] overflow-hidden shadow-2xl border border-stone-100 flex flex-col lg:flex-row">
             <div className="lg:w-1/2 p-10 md:p-24 bg-ink-black text-white relative">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
@@ -456,7 +458,7 @@ const App: React.FC = () => {
       </section>
 
       <footer className="bg-ink-black text-white pt-20 pb-10">
-        <div className="container mx-auto max-w-7xl px-6 md:px-8">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-10">
             <div>
               <div className="text-2xl md:text-3xl font-black serif-font tracking-widest mb-4">十里荷塘书法社</div>

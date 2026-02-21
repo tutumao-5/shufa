@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 interface Teacher {
   id: number;
   name: string;
-  photo: string;
   awards: string[];
   works: string[];
   bio: string;
@@ -15,7 +14,6 @@ export const TeacherShowcase: React.FC = () => {
     {
       id: Date.now(),
       name: '王海芬',
-      photo: '',
       awards: [
         '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛书法类三等奖（作品：《苏东坡 题跋》）',
         '庆“五一”乐清市教职工书法比赛三等奖',
@@ -34,13 +32,11 @@ export const TeacherShowcase: React.FC = () => {
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
   };
 
-  const handleImageUpload = (id: number, field: 'photo' | 'works', index?: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (id: number, field: 'works', index?: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      if (field === 'photo') {
-        handleUpdateTeacher(id, 'photo', url);
-      } else if (typeof index === 'number') {
+      if (typeof index === 'number') {
         const teacher = teachers.find(t => t.id === id);
         if (teacher) {
           const newWorks = [...teacher.works];
@@ -64,7 +60,6 @@ export const TeacherShowcase: React.FC = () => {
     setTeachers([...teachers, {
       id: Date.now(),
       name: '',
-      photo: '',
       awards: ['', '', ''],
       works: [], 
       bio: ''
@@ -86,7 +81,7 @@ export const TeacherShowcase: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className={`relative flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 items-center group/teacher`}
+          className="relative flex flex-col gap-12 items-center group/teacher"
         >
           {/* Delete Button */}
           {teachers.length > 1 && (
@@ -98,45 +93,8 @@ export const TeacherShowcase: React.FC = () => {
             </button>
           )}
 
-          {/* Teacher Photo Pane */}
-          <div className="w-full lg:w-5/12 relative">
-            <div 
-              onClick={() => fileInputRefs.current[`photo-${teacher.id}`]?.click()}
-              className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border-8 border-white bg-stone-100 cursor-pointer group/photo relative"
-            >
-              {teacher.photo ? (
-                <img 
-                  src={teacher.photo} 
-                  alt="Teacher" 
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-stone-400 gap-4">
-                  <div className="w-16 h-16 rounded-full bg-stone-200 flex items-center justify-center">
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                  </div>
-                  <span className="text-xs font-black tracking-widest uppercase">点击上传教师艺术照</span>
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black/0 group-hover/photo:bg-black/10 transition-colors flex items-center justify-center">
-                <span className="bg-white/90 px-4 py-2 rounded-full text-[10px] font-bold opacity-0 group-hover/photo:opacity-100 transition-opacity shadow-sm">更换照片</span>
-              </div>
-              <input 
-                type="file" 
-                ref={el => fileInputRefs.current[`photo-${teacher.id}`] = el}
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleImageUpload(teacher.id, 'photo')} 
-              />
-            </div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-vermilion/10 rounded-full blur-3xl -z-10"></div>
-          </div>
-
           {/* Teacher Info Pane - 加入了 min-w-0 和 overflow-hidden */}
-          <div className="w-full lg:w-7/12 space-y-8 min-w-0 overflow-hidden">
+          <div className="w-full space-y-8 min-w-0 overflow-hidden">
             <div className="space-y-4">
               <div className="flex flex-col md:flex-row md:items-baseline gap-4">
                 <input 

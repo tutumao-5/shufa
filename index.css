@@ -76,29 +76,3 @@
 ::-webkit-scrollbar-thumb {
   @apply bg-vermilion/40 rounded-full hover:bg-vermilion/60 transition-colors;
 }
-/* ================= 作品墙动画 ================= */
-/* 1. 无限水平滚动动画 */
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); } 
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 35s linear infinite; /* 35秒滚动一圈 */
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused; /* 鼠标悬停时暂停滚动，方便仔细观看 */
-}
-
-/* 2. 呼吸闪烁动画 */
-@keyframes flash-opacity {
-  0%, 100% { opacity: 1; filter: brightness(100%); }
-  50% { opacity: 0.6; filter: brightness(80%); } 
-}
-
-.animate-flash {
-  animation: flash-opacity 4s ease-in-out infinite;
-}
