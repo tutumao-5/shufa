@@ -8,47 +8,65 @@ interface GalleryItem {
 }
 
 export const StudentGallery: React.FC = () => {
-  // 自动生成 18 张获奖照片的路径
+  // 左侧：自动生成 18 张获奖照片的路径 (1.png ~ 18.png)
   const initialAwards: GalleryItem[] = Array.from({ length: 18 }, (_, i) => ({
     id: `award-${i + 1}`,
     title: `获奖荣誉 ${i + 1}`,
     imageUrl: `${import.meta.env.BASE_URL}images/students/awards/${i + 1}.png`
   }));
 
+  // 右侧：自动生成 20 张书法成果作品的路径 (zp1.png ~ zp20.png)
+  const initialWorks: GalleryItem[] = Array.from({ length: 20 }, (_, i) => ({
+    id: `work-${i + 1}`,
+    title: `书法作品 ${i + 1}`,
+    imageUrl: `${import.meta.env.BASE_URL}images/students/works/zp${i + 1}.png`
+  }));
+
   const [awards] = useState<GalleryItem[]>(initialAwards);
+  const [works] = useState<GalleryItem[]>(initialWorks);
   
-  // 右侧的书法成果作品，暂时保留空数组作为占位
-  const [works, setWorks] = useState<GalleryItem[]>([]);
-  
-  // 控制放大弹窗的状态
+  // 控制放大弹窗的状态（全局共用）
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
-  // 用于水平滑动的状态和引用
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // ================= 左侧获奖成绩滑动控制 =================
+  const [awardsScrollProgress, setAwardsScrollProgress] = useState(0);
+  const awardsScrollRef = useRef<HTMLDivElement>(null);
 
-  const removeItem = (id: number | string) => {
-    setWorks(prev => prev.filter(item => item.id !== id));
-  };
-
-  // 监听容器本身的滚动，更新进度条
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+  const handleAwardsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollWidth = container.scrollWidth - container.clientWidth;
     if (scrollWidth > 0) {
-      const progress = (container.scrollLeft / scrollWidth) * 100;
-      setScrollProgress(progress);
+      setAwardsScrollProgress((container.scrollLeft / scrollWidth) * 100);
     }
   };
 
-  // 监听滑块的拖动，并反向控制容器的滚动
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAwardsSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const progress = Number(e.target.value);
-    setScrollProgress(progress);
-    
-    if (scrollContainerRef.current) {
-      const scrollWidth = scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth;
-      scrollContainerRef.current.scrollLeft = (progress / 100) * scrollWidth;
+    setAwardsScrollProgress(progress);
+    if (awardsScrollRef.current) {
+      const scrollWidth = awardsScrollRef.current.scrollWidth - awardsScrollRef.current.clientWidth;
+      awardsScrollRef.current.scrollLeft = (progress / 100) * scrollWidth;
+    }
+  };
+
+  // ================= 右侧书法成果滑动控制 =================
+  const [worksScrollProgress, setWorksScrollProgress] = useState(0);
+  const worksScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleWorksScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const scrollWidth = container.scrollWidth - container.clientWidth;
+    if (scrollWidth > 0) {
+      setWorksScrollProgress((container.scrollLeft / scrollWidth) * 100);
+    }
+  };
+
+  const handleWorksSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const progress = Number(e.target.value);
+    setWorksScrollProgress(progress);
+    if (worksScrollRef.current) {
+      const scrollWidth = worksScrollRef.current.scrollWidth - worksScrollRef.current.clientWidth;
+      worksScrollRef.current.scrollLeft = (progress / 100) * scrollWidth;
     }
   };
 
@@ -66,57 +84,45 @@ export const StudentGallery: React.FC = () => {
         </div>
 
         <div className="relative group/scroll">
-          {/* 核心修改：改为 grid 布局，限定 3 行 (grid-rows-3)，横向流 (grid-flow-col) */}
+          {/* 获奖成绩：横向 3 行网格 */}
           <div 
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
+            ref={awardsScrollRef}
+            onScroll={handleAwardsScroll}
             className="grid grid-rows-3 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {awards.length > 0 ? (
-              awards.map((award) => (
-                <div 
-                  key={award.id} 
-                  onClick={() => setSelectedImage(award.imageUrl)}
-                  // 调整了单张图片的尺寸 (w-36 md:w-48)，使三行叠加的高度刚好与右侧内容协调
-                  className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative"
-                >
-                  <img src={award.imageUrl} alt={award.title} className="w-full h-full object-cover group-hover/award:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
-                     <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
-                       点击放大
-                     </span>
-                  </div>
+            {awards.map((award) => (
+              <div 
+                key={award.id} 
+                onClick={() => setSelectedImage(award.imageUrl)}
+                className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative"
+              >
+                <img src={award.imageUrl} alt={award.title} className="w-full h-full object-cover group-hover/award:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                   <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
+                     点击放大
+                   </span>
                 </div>
-              ))
-            ) : (
-              <div className="row-span-3 w-full aspect-[4/3] rounded-xl border-2 border-stone-100 flex flex-col items-center justify-center text-stone-300 gap-4">
-                <div className="w-16 h-16 rounded-full border-2 border-stone-100 flex items-center justify-center">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <p className="text-xs font-bold tracking-widest uppercase">暂无获奖展示</p>
               </div>
-            )}
+            ))}
           </div>
 
-          {/* 红色可拖拽进度条 */}
-          {awards.length > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-              <motion.div 
-                className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none"
-                animate={{ width: `${Math.max(scrollProgress, 15)}%` }}
-                transition={{ type: "spring", bounce: 0, duration: 0.1 }}
-              />
-              <input 
-                type="range" 
-                min="0" 
-                max="100" 
-                value={scrollProgress}
-                onChange={handleSliderChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
-          )}
+          {/* 获奖成绩：红色可拖拽进度条 */}
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
+            <motion.div 
+              className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none"
+              animate={{ width: `${Math.max(awardsScrollProgress, 15)}%` }}
+              transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+            />
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              value={awardsScrollProgress}
+              onChange={handleAwardsSlider}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
         </div>
       </div>
 
@@ -127,36 +133,49 @@ export const StudentGallery: React.FC = () => {
             <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法成果作品</h3>
             <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Calligraphy Works</p>
           </div>
+          <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动进度块 / 点击放大</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 md:gap-6">
-          <AnimatePresence mode="popLayout">
+        <div className="relative group/scroll">
+          {/* 书法作品：横向 2 行网格 (适配竖版图片高度) */}
+          <div 
+            ref={worksScrollRef}
+            onScroll={handleWorksScroll}
+            className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {works.map((work) => (
-              <motion.div 
-                layout
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
+              <div 
                 key={work.id} 
-                className="relative aspect-[3/4] rounded-xl md:rounded-[2rem] overflow-hidden shadow-lg border-2 md:border-4 border-white group/work"
+                onClick={() => setSelectedImage(work.imageUrl)}
+                className="w-32 md:w-40 shrink-0 aspect-[3/4] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/work cursor-pointer snap-start relative"
               >
-                <img src={work.imageUrl} alt="Work" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
-                <button 
-                  onClick={() => removeItem(work.id)}
-                  className="absolute top-3 right-3 bg-vermilion text-white p-1.5 rounded-full opacity-0 group-hover/work:opacity-100 transition-opacity shadow-md"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-              </motion.div>
+                <img src={work.imageUrl} alt={work.title} className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                   <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">
+                     点击放大
+                   </span>
+                </div>
+              </div>
             ))}
-          </AnimatePresence>
+          </div>
 
-          {Array.from({ length: Math.max(0, 4 - works.length) }).map((_, i) => (
-            <div key={`placeholder-${i}`} className="aspect-[3/4] rounded-2xl md:rounded-[2rem] border-2 border-stone-100 bg-stone-50/50 flex flex-col items-center justify-center text-stone-300 gap-2">
-              <svg className="w-6 h-6 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-              <span className="text-[8px] font-bold uppercase tracking-widest">暂无作品</span>
-            </div>
-          ))}
+          {/* 书法作品：红色可拖拽进度条 */}
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
+            <motion.div 
+              className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none"
+              animate={{ width: `${Math.max(worksScrollProgress, 15)}%` }}
+              transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+            />
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              value={worksScrollProgress}
+              onChange={handleWorksSlider}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
         </div>
       </div>
 
