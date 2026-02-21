@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 
@@ -24,7 +23,7 @@ export const TeacherShowcase: React.FC = () => {
         '第二届“德翔杯”迎新春书画作品展入选作品',
         '“知临杯”乐清市书法篆刻大展入展'
       ],
-      works: ['', '', ''],
+      works: [],
       bio: ''
     }
   ]);
@@ -67,7 +66,7 @@ export const TeacherShowcase: React.FC = () => {
       name: '',
       photo: '',
       awards: ['', '', ''],
-      works: ['', '', ''],
+      works: [], 
       bio: ''
     }]);
   };
@@ -136,8 +135,8 @@ export const TeacherShowcase: React.FC = () => {
             <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-vermilion/10 rounded-full blur-3xl -z-10"></div>
           </div>
 
-          {/* Teacher Info Pane */}
-          <div className="w-full lg:w-7/12 space-y-8">
+          {/* Teacher Info Pane - 加入了 min-w-0 和 overflow-hidden */}
+          <div className="w-full lg:w-7/12 space-y-8 min-w-0 overflow-hidden">
             <div className="space-y-4">
               <div className="flex flex-col md:flex-row md:items-baseline gap-4">
                 <input 
@@ -176,47 +175,43 @@ export const TeacherShowcase: React.FC = () => {
               </div>
             </div>
 
-            {/* Works Gallery Pane */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-black tracking-[0.3em] text-stone-400 uppercase flex items-center gap-2">
+            {/* Works Gallery Pane - 自动滚动闪烁版 */}
+            <div className="space-y-4 w-full relative">
+              <h4 className="text-xs font-black tracking-[0.3em] text-stone-400 uppercase flex items-center gap-2 mb-6">
                 <span className="w-8 h-px bg-stone-200"></span>
                 作品展示 / Portfolio
               </h4>
-              <div className="grid grid-cols-3 gap-4">
-                {teacher.works.map((work, i) => (
-                  <div 
-                    key={i} 
-                    onClick={() => fileInputRefs.current[`work-${teacher.id}-${i}`]?.click()}
-                    className="aspect-[4/5] rounded-lg overflow-hidden shadow-md group/work cursor-pointer border-2 border-white bg-stone-100 relative"
-                  >
-                    {work ? (
-                      <img 
-                        src={work} 
-                        alt="Work" 
-                        className="w-full h-full object-cover group-hover/work:scale-110 transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-stone-300">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
+              
+              {/* 滚动视口容器 */}
+              <div className="relative w-full overflow-hidden rounded-xl py-2">
+                {/* 左右遮罩，营造边缘水墨虚化感 */}
+                <div className="absolute inset-y-0 left-0 w-8 md:w-12 bg-gradient-to-r from-[#FAF7F0] to-transparent z-10 pointer-events-none"></div>
+                <div className="absolute inset-y-0 right-0 w-8 md:w-12 bg-gradient-to-l from-[#FAF7F0] to-transparent z-10 pointer-events-none"></div>
+                
+                {/* 滚动的长条 */}
+                <div className="animate-marquee flex gap-4 md:gap-6">
+                  {/* 生成 32 张图(16张重复两次)以实现无缝循环滚动 */}
+                  {[...Array(16), ...Array(16)].map((_, i) => {
+                    const imageIndex = (i % 16) + 1; 
+                    return (
+                      <div 
+                        key={i} 
+                        className="w-24 md:w-36 shrink-0 aspect-[1/3] rounded-sm overflow-hidden shadow-[4px_4px_10px_rgba(0,0,0,0.1)] border border-stone-200 bg-white animate-flash"
+                        style={{ animationDelay: `${(i % 5) * 0.8}s` }}
+                      >
+                        {/* 核心修复：使用了相对路径 ./ 以适配云端沙盒环境，并添加 .jpg.jpg */}
+                        <img 
+                          src={`./works/work-${imageIndex}.jpg.jpg`} 
+                          alt={`书法作品 ${imageIndex}`} 
+                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-700 cursor-pointer"
+                        />
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/5 transition-colors flex items-center justify-center">
-                       <span className="bg-white/90 px-2 py-1 rounded-full text-[8px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity">上传作品</span>
-                    </div>
-                    <input 
-                      type="file" 
-                      ref={el => fileInputRefs.current[`work-${teacher.id}-${i}`] = el}
-                      className="hidden" 
-                      accept="image/*" 
-                      onChange={handleImageUpload(teacher.id, 'works', i)} 
-                    />
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
               </div>
             </div>
+
           </div>
         </motion.div>
       ))}
