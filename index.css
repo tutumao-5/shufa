@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", serif;
+  --font-calligraphy: "Ma Shan Zheng", cursive;
+  --font-brush: "Zhi Mang Xing", cursive;
+  
+  --color-ink-black: #1A1A1A;
+  --color-paper-white: #FAF7F0;
+  --color-vermilion: #B22222;
+  --color-lotus-green: #4A6741;
+  --color-sage: #E8EBE4;
+  --color-gold: #C5A059;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply bg-paper-white text-ink-black antialiased overflow-x-hidden;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(74, 103, 65, 0.03) 0, transparent 50%),
+      radial-gradient(at 50% 0%, rgba(178, 34, 34, 0.02) 0, transparent 50%),
+      url('https://www.transparenttextures.com/patterns/handmade-paper.png');
+  }
+
+  /* Better touch targets for mobile */
+  button, a {
+    @apply cursor-pointer;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@layer components {
+  .glass-nav {
+    @apply backdrop-blur-xl bg-paper-white/70 border-b border-black/5;
+  }
+
+  .serif-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .section-heading {
+    @apply relative pb-4;
+  }
+
+  .section-heading::after {
+    content: '';
+    @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-vermilion;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-paper-white;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-vermilion/40 rounded-full hover:bg-vermilion/60 transition-colors;
+}

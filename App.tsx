@@ -112,25 +112,25 @@ const App: React.FC = () => {
         scrolled ? 'glass-nav py-2 shadow-md' : 'bg-paper-white/30 py-4 md:py-6'
       }`}>
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-2 md:gap-4">
             <div 
               onClick={() => logoInputRef.current?.click()}
-              className="w-8 h-8 md:w-12 md:h-12 bg-ink-black rounded-full flex items-center justify-center text-white transition-all duration-500 hover:bg-vermilion cursor-pointer overflow-hidden border-2 border-transparent hover:border-white shadow-md relative group"
+              className="w-10 h-10 md:w-14 md:h-14 bg-ink-black rounded-full flex items-center justify-center text-white transition-all duration-500 hover:bg-vermilion cursor-pointer overflow-hidden border-2 border-transparent hover:border-white shadow-lg relative group"
             >
               {logoImage ? (
-                <img src={logoImage} alt="十里荷塘书法工作室 Logo" className="w-full h-full object-cover" />
+                <img src={logoImage} alt="十里荷塘书法社 Logo" className="w-full h-full object-cover" />
               ) : (
                 <LotusIcon />
               )}
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-[6px] md:text-[8px] font-bold uppercase tracking-tighter">更换</span>
+                <span className="text-[8px] font-bold uppercase tracking-tighter">更换</span>
               </div>
               <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
             </div>
             
-            <a href="#home" className="text-sm md:text-xl font-black tracking-[0.1em] md:tracking-[0.2em] text-ink-black flex flex-col leading-none">
-              <span className="font-calligraphy text-2xl md:text-3xl">十里荷塘书法工作室</span>
-              <span className="text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.4em] text-stone-400 mt-1 font-sans uppercase">Calligraphy Studio</span>
+            <a href="#home" className="text-ink-black flex flex-col leading-none">
+              <span className="font-calligraphy text-xl md:text-3xl font-bold">十里荷塘书法社</span>
+              <span className="text-[7px] md:text-[10px] tracking-[0.3em] md:tracking-[0.5em] text-stone-400 mt-1 font-sans uppercase font-bold">Calligraphy Society</span>
             </a>
           </div>
           
@@ -152,12 +152,32 @@ const App: React.FC = () => {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-white flex flex-col items-center justify-center space-y-8 animate-in fade-in duration-300">
-            <button className="absolute top-6 right-6 text-3xl" onClick={() => setIsMobileMenuOpen(false)}>✕</button>
-            {navItems.map((item) => (
-              <a key={item.id} href={`#${item.id}`} className="text-2xl font-serif text-ink-black tracking-widest" onClick={() => setIsMobileMenuOpen(false)}>{item.name}</a>
-            ))}
-            <a href="#contact" className="bg-vermilion text-white text-center py-4 px-12 rounded-full font-bold shadow-lg" onClick={() => setIsMobileMenuOpen(false)}>立即预约</a>
+          <div className="md:hidden fixed inset-0 z-[60] bg-paper-white flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300">
+            <button 
+              className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center text-2xl bg-stone-100 rounded-full" 
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              ✕
+            </button>
+            <div className="flex flex-col items-center space-y-8 w-full">
+              {navItems.map((item, idx) => (
+                <a 
+                  key={item.id} 
+                  href={`#${item.id}`} 
+                  className="text-3xl font-serif text-ink-black tracking-widest hover:text-vermilion transition-colors" 
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </a>
+              ))}
+              <div className="pt-8 w-full">
+                <a href="#contact" className="block w-full bg-vermilion text-white text-center py-5 rounded-2xl font-bold shadow-xl text-xl" onClick={() => setIsMobileMenuOpen(false)}>立即预约试听</a>
+              </div>
+            </div>
+            <div className="absolute bottom-12 text-stone-300 text-[10px] tracking-[0.5em] uppercase font-bold">
+              Ten Mile Lotus Pond
+            </div>
           </div>
         )}
       </nav>
@@ -171,16 +191,16 @@ const App: React.FC = () => {
               <span className="h-px w-8 md:w-12 bg-vermilion"></span>
               <span className="text-vermilion font-bold tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs uppercase">Premium Art Education</span>
             </div>
-            <h1 className="text-4xl sm:text-6xl md:text-[9rem] font-black font-calligraphy text-ink-black leading-[1.2] md:leading-[0.9] mb-6 md:mb-8">
-              十里荷塘<br className="hidden sm:block" />
-              <span className="text-vermilion inline-block transform sm:-translate-x-2">书法工作室</span>
+            <h1 className="text-5xl sm:text-7xl md:text-[9rem] font-black font-calligraphy text-ink-black leading-[1.1] md:leading-[0.9] mb-8 md:mb-10">
+              十里荷塘<br />
+              <span className="text-vermilion inline-block transform md:-translate-x-4">书法社</span>
             </h1>
-            <p className="text-base md:text-xl text-stone-500 max-w-xl mb-8 md:mb-12 font-light leading-relaxed md:leading-loose tracking-widest">
-              正姿控笔 · 卷面提升 · 校长亲授<br />
+            <p className="text-sm md:text-xl text-stone-500 max-w-xl mb-10 md:mb-14 font-light leading-relaxed md:leading-loose tracking-[0.1em] md:tracking-widest">
+              正姿控笔 · 卷面提升 · 校长亲授<br className="md:hidden" />
               在喧嚣世界中，为孩子寻一处静谧，落一笔从容。
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 md:gap-6">
-              <a href="#contact" className="group bg-lotus-green text-white px-8 md:px-10 py-4 md:py-5 rounded-full text-base md:text-lg font-bold shadow-2xl hover:bg-ink-black transition-all flex items-center justify-center gap-3">
+            <div className="flex flex-col sm:flex-row gap-5 md:gap-6">
+              <a href="#contact" className="group bg-lotus-green text-white px-8 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-full text-lg font-bold shadow-2xl hover:bg-ink-black transition-all flex items-center justify-center gap-3">
                 开启艺术之旅 
                 <span className="group-hover:translate-x-2 transition-transform">➔</span>
               </a>

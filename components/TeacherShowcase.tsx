@@ -5,7 +5,6 @@ import { motion } from 'motion/react';
 interface Teacher {
   id: number;
   name: string;
-  title: string;
   photo: string;
   awards: string[];
   works: string[];
@@ -16,10 +15,15 @@ export const TeacherShowcase: React.FC = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([
     {
       id: Date.now(),
-      name: '',
-      title: '',
+      name: '王海芬',
       photo: '',
-      awards: ['', '', ''],
+      awards: [
+        '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛书法类三等奖（作品：《苏东坡 题跋》）',
+        '庆“五一”乐清市教职工书法比赛三等奖',
+        '“助力乡村振兴”——寻找地标产品胶州大白菜书画展征稿活动书法作品佳作奖',
+        '第二届“德翔杯”迎新春书画作品展入选作品',
+        '“知临杯”乐清市书法篆刻大展入展'
+      ],
       works: ['', '', ''],
       bio: ''
     }
@@ -61,7 +65,6 @@ export const TeacherShowcase: React.FC = () => {
     setTeachers([...teachers, {
       id: Date.now(),
       name: '',
-      title: '',
       photo: '',
       awards: ['', '', ''],
       works: ['', '', ''],
@@ -142,12 +145,6 @@ export const TeacherShowcase: React.FC = () => {
                   onChange={(e) => handleUpdateTeacher(teacher.id, 'name', e.target.value)}
                   placeholder="教师姓名"
                   className="text-4xl md:text-5xl font-black font-calligraphy text-ink-black bg-transparent border-b border-transparent hover:border-stone-200 focus:border-vermilion outline-none w-full md:w-auto"
-                />
-                <input 
-                  value={teacher.title}
-                  onChange={(e) => handleUpdateTeacher(teacher.id, 'title', e.target.value)}
-                  placeholder="教师职称 (如：首席讲师)"
-                  className="text-vermilion font-bold tracking-widest text-sm uppercase bg-transparent border-b border-transparent hover:border-stone-200 focus:border-vermilion outline-none w-full md:w-auto"
                 />
               </div>
               <textarea 
