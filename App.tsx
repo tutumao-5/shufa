@@ -164,7 +164,7 @@ const App: React.FC = () => {
                 <a 
                   key={item.id} 
                   href={`#${item.id}`} 
-                  className="text-3xl font-serif text-ink-black tracking-widest hover:text-vermilion transition-colors" 
+                  className="text-2xl font-serif text-ink-black tracking-widest hover:text-vermilion transition-colors" 
                   style={{ animationDelay: `${idx * 100}ms` }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -191,7 +191,7 @@ const App: React.FC = () => {
               <span className="h-px w-8 md:w-12 bg-vermilion"></span>
               <span className="text-vermilion font-bold tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs uppercase">Premium Art Education</span>
             </div>
-            <h1 className="text-5xl sm:text-7xl md:text-[9rem] font-black font-calligraphy text-ink-black leading-[1.1] md:leading-[0.9] mb-8 md:mb-10">
+            <h1 className="text-4xl sm:text-7xl md:text-[9rem] font-black font-calligraphy text-ink-black leading-[1.1] md:leading-[0.9] mb-8 md:mb-10">
               十里荷塘<br />
               <span className="text-vermilion inline-block transform md:-translate-x-4">书法社</span>
             </h1>
@@ -199,8 +199,8 @@ const App: React.FC = () => {
               正姿控笔 · 卷面提升 · 校长亲授<br className="md:hidden" />
               在喧嚣世界中，为孩子寻一处静谧，落一笔从容。
             </p>
-            <div className="flex flex-col sm:flex-row gap-5 md:gap-6">
-              <a href="#contact" className="group bg-lotus-green text-white px-8 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-full text-lg font-bold shadow-2xl hover:bg-ink-black transition-all flex items-center justify-center gap-3">
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
+              <a href="#contact" className="group bg-lotus-green text-white px-8 md:px-12 py-4 md:py-6 rounded-2xl md:rounded-full text-base md:text-lg font-bold shadow-2xl hover:bg-ink-black transition-all flex items-center justify-center gap-3">
                 开启艺术之旅 
                 <span className="group-hover:translate-x-2 transition-transform">➔</span>
               </a>
@@ -240,11 +240,11 @@ const App: React.FC = () => {
               { icon: '🎯', title: '定制成长', tag: 'Personal', desc: '针对不同阶段的孩子，设计差异化教学方案。在小班氛围中，每个笔画都得到温柔守护。' },
               { icon: '✨', title: '雅室学堂', tag: 'Environment', desc: '书香盈室，荷香满园。在极富传统韵味的空间里，让孩子静下心来，与纸墨对话。' }
             ].map((usp, idx) => (
-              <div key={idx} className="group relative bg-white/50 backdrop-blur-sm p-8 md:p-12 rounded-[1.5rem] md:rounded-[2rem] border border-white hover:bg-white hover:shadow-2xl transition-all duration-500">
+              <div key={idx} className="group relative bg-white/50 backdrop-blur-sm p-6 md:p-12 rounded-[1.5rem] md:rounded-[2rem] border border-white hover:bg-white hover:shadow-2xl transition-all duration-500">
                 <div className="absolute top-6 right-6 md:top-8 md:right-8 text-[8px] md:text-[10px] font-bold tracking-widest text-stone-300 uppercase">{usp.tag}</div>
-                <div className="text-4xl md:text-5xl mb-6 md:mb-8 transform group-hover:-translate-y-2 transition-transform duration-500">{usp.icon}</div>
-                <h3 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 serif-font text-ink-black">{usp.title}</h3>
-                <p className="text-stone-500 leading-relaxed text-sm">{usp.desc}</p>
+                <div className="text-3xl md:text-5xl mb-4 md:mb-8 transform group-hover:-translate-y-2 transition-transform duration-500">{usp.icon}</div>
+                <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-6 serif-font text-ink-black">{usp.title}</h3>
+                <p className="text-stone-500 leading-relaxed text-xs md:text-sm">{usp.desc}</p>
               </div>
             ))}
           </div>
@@ -305,31 +305,31 @@ const App: React.FC = () => {
               </div>
             </div>
             <div className="lg:col-span-8">
-              <div className="bg-white rounded-[2rem] md:rounded-[4rem] p-8 md:p-20 shadow-sm relative animate-in fade-in slide-in-from-right-10 duration-700" key={activeTab}>
-                <div className="text-6xl md:text-[12rem] font-serif text-stone-100 absolute -top-4 md:-top-10 -left-4 md:-left-10 select-none opacity-40">墨</div>
+              <div className="bg-white rounded-[2rem] md:rounded-[4rem] p-6 md:p-20 shadow-sm relative animate-in fade-in slide-in-from-right-10 duration-700" key={activeTab}>
+                <div className="text-5xl md:text-[12rem] font-serif text-stone-100 absolute -top-2 md:-top-10 -left-2 md:-left-10 select-none opacity-40">墨</div>
                 <div className="relative z-10">
-                  <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-12">
-                    <span className="text-4xl md:text-6xl p-3 md:p-4 bg-sage/30 rounded-2xl md:rounded-3xl">{activeCourse.icon}</span>
+                  <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-12">
+                    <span className="text-3xl md:text-6xl p-2 md:p-4 bg-sage/30 rounded-xl md:rounded-3xl">{activeCourse.icon}</span>
                     <div>
-                      <h3 className="text-xl md:text-4xl font-bold serif-font text-ink-black mb-1 md:mb-2">{activeCourse.title}</h3>
-                      <p className="text-vermilion font-bold tracking-[0.1em] md:tracking-[0.2em] text-[8px] md:text-xs uppercase">Curriculum Highlights</p>
+                      <h3 className="text-lg md:text-4xl font-bold serif-font text-ink-black mb-1 md:mb-2">{activeCourse.title}</h3>
+                      <p className="text-vermilion font-bold tracking-[0.1em] md:tracking-[0.2em] text-[7px] md:text-xs uppercase">Curriculum Highlights</p>
                     </div>
                   </div>
-                  <p className="text-lg md:text-2xl text-stone-600 mb-8 md:mb-12 font-medium leading-relaxed">{activeCourse.description}</p>
-                  <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-                    <ul className="space-y-4 md:space-y-6">
+                  <p className="text-base md:text-2xl text-stone-600 mb-6 md:mb-12 font-medium leading-relaxed">{activeCourse.description}</p>
+                  <div className="grid md:grid-cols-2 gap-6 md:gap-12">
+                    <ul className="space-y-3 md:space-y-6">
                       {activeCourse.highlights.map((h, i) => (
-                        <li key={i} className="flex items-start gap-3 text-stone-500">
-                          <span className="w-5 h-5 rounded-full bg-lotus-green/10 flex items-center justify-center text-lotus-green text-[10px] shrink-0 mt-1">✓</span>
+                        <li key={i} className="flex items-start gap-2 text-stone-500">
+                          <span className="w-4 h-4 rounded-full bg-lotus-green/10 flex items-center justify-center text-lotus-green text-[8px] shrink-0 mt-1">✓</span>
                           <span className="text-sm md:text-lg">{h}</span>
                         </li>
                       ))}
                     </ul>
-                    <div className="bg-sage/10 p-6 md:p-10 rounded-[1.5rem] md:rounded-[3rem] border border-sage/30">
-                      <p className="text-stone-500 italic text-sm md:text-lg leading-relaxed mb-6">"{activeCourse.quote}"</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-stone-200"></div>
-                        <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase">家长感言</span>
+                    <div className="bg-sage/10 p-5 md:p-10 rounded-[1.2rem] md:rounded-[3rem] border border-sage/30">
+                      <p className="text-stone-500 italic text-xs md:text-lg leading-relaxed mb-4 md:mb-6">"{activeCourse.quote}"</p>
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-stone-200"></div>
+                        <span className="text-[8px] md:text-[10px] font-bold tracking-widest text-stone-400 uppercase">家长感言</span>
                       </div>
                     </div>
                   </div>
@@ -344,31 +344,31 @@ const App: React.FC = () => {
       <section id="contact" className="py-20 md:py-32 bg-white relative">
         <div className="container mx-auto px-6 md:px-8">
           <div className="bg-paper-white rounded-[2.5rem] md:rounded-[5rem] overflow-hidden shadow-2xl border border-stone-100 flex flex-col lg:flex-row">
-            <div className="lg:w-1/2 p-10 md:p-24 bg-ink-black text-white relative">
+            <div className="lg:w-1/2 p-8 md:p-24 bg-ink-black text-white relative">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
               <div className="relative z-10">
-                <h2 className="text-3xl md:text-6xl font-black serif-font mb-8 md:mb-12 leading-tight">让改变<br />从今天开始</h2>
-                <p className="text-stone-400 text-base md:text-xl mb-12 md:mb-16 leading-relaxed md:leading-loose">每一位伟大的书法家，都曾有过笨拙的起笔。我们在这里，陪伴孩子写好人生的每一个字。</p>
-                <div className="space-y-8 md:space-y-12">
+                <h2 className="text-3xl md:text-6xl font-black serif-font mb-6 md:mb-12 leading-tight">让改变<br />从今天开始</h2>
+                <p className="text-stone-400 text-sm md:text-xl mb-8 md:mb-16 leading-relaxed md:leading-loose">每一位伟大的书法家，都曾有过笨拙的起笔。我们在这里，陪伴孩子写好人生的每一个字。</p>
+                <div className="space-y-6 md:space-y-12">
                   <div className="flex gap-4 md:gap-8">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/10 flex items-center justify-center text-vermilion shrink-0">📍</div>
                     <div>
-                      <h4 className="font-bold text-base md:text-xl mb-2 md:mb-4 serif-font">艺术馆址</h4>
-                      <p className="text-stone-400 text-xs md:text-sm leading-relaxed">虹桥校区：三村梅隆路66号<br />蒲岐校区：定安小区1幢B门</p>
+                      <h4 className="font-bold text-sm md:text-xl mb-1 md:mb-4 serif-font">艺术馆址</h4>
+                      <p className="text-stone-400 text-[10px] md:text-sm leading-relaxed">虹桥校区：三村梅隆路66号<br />蒲岐校区：定安小区1幢B门</p>
                     </div>
                   </div>
                   <div className="flex gap-4 md:gap-8">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/10 flex items-center justify-center text-lotus-green shrink-0">📞</div>
                     <div>
-                      <h4 className="font-bold text-base md:text-xl mb-1 md:mb-2 serif-font">咨询专线</h4>
-                      <p className="text-xl md:text-3xl font-black text-white">189 8972 7075</p>
+                      <h4 className="font-bold text-sm md:text-xl mb-1 md:mb-2 serif-font">咨询专线</h4>
+                      <p className="text-lg md:text-3xl font-black text-white">189 8972 7075</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="lg:w-1/2 p-10 md:p-24 bg-white flex flex-col justify-center">
+            <div className="lg:w-1/2 p-8 md:p-24 bg-white flex flex-col justify-center">
               {isSubmitSuccess ? (
                 <div className="text-center animate-in zoom-in duration-500">
                   <div className="w-16 h-16 md:w-24 md:h-24 bg-lotus-green text-white rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-xl">

@@ -158,24 +158,24 @@ export const TeacherShowcase: React.FC = () => {
                 </div>
                 
                 {/* Vertical Name Tag */}
-                <div className={`absolute bottom-8 ${index % 2 === 0 ? 'right-8' : 'left-8'} z-10`}>
-                   <div className="serif-vertical bg-white/90 backdrop-blur px-3 py-6 rounded-sm shadow-xl border border-white/50">
-                     <span className="text-3xl font-black font-calligraphy text-ink-black tracking-widest">{teacher.name || '待输入'}</span>
+                <div className={`absolute bottom-6 md:bottom-8 ${index % 2 === 0 ? 'right-6 md:right-8' : 'left-6 md:left-8'} z-10`}>
+                   <div className="serif-vertical bg-white/90 backdrop-blur px-2 md:px-3 py-4 md:py-6 rounded-sm shadow-xl border border-white/50">
+                     <span className="text-xl md:text-3xl font-black font-calligraphy text-ink-black tracking-widest">{teacher.name || '待输入'}</span>
                    </div>
                 </div>
               </div>
 
               {/* Content Section */}
-              <div className="lg:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-hidden">
-                <div className="space-y-10">
+              <div className="lg:w-3/5 p-6 md:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-hidden">
+                <div className="space-y-8 md:space-y-10">
                   {/* Bio */}
                   <div className="relative">
-                    <div className="absolute -top-4 -left-4 text-6xl font-serif text-stone-100 select-none">“</div>
+                    <div className="absolute -top-4 -left-4 text-5xl md:text-6xl font-serif text-stone-100 select-none">“</div>
                     <textarea 
                       value={teacher.bio}
                       onChange={(e) => handleUpdateTeacher(teacher.id, 'bio', e.target.value)}
                       placeholder="在此输入教师简介，描述其教学风格与艺术见解..."
-                      className="w-full text-stone-600 leading-relaxed text-base md:text-lg italic serif-font bg-transparent border-none focus:ring-0 outline-none min-h-[80px] resize-none relative z-10"
+                      className="w-full text-stone-600 leading-relaxed text-sm md:text-lg italic serif-font bg-transparent border-none focus:ring-0 outline-none min-h-[60px] md:min-h-[80px] resize-none relative z-10"
                     />
                   </div>
 
@@ -201,13 +201,13 @@ export const TeacherShowcase: React.FC = () => {
                   </div>
 
                   {/* Portfolio - 真正的可拖拽组件组合 */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 md:space-y-6">
                     <div className="flex items-center justify-between pr-4">
                       <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
-                        <span className="w-8 h-px bg-vermilion/30"></span>
+                        <span className="w-6 md:w-8 h-px bg-vermilion/30"></span>
                         作品展示 / Portfolio
                       </h4>
-                      <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">拖动滑块 / 点击放大</span>
+                      <span className="text-[9px] md:text-[10px] font-bold text-stone-300 tracking-widest uppercase">拖动滑块 / 点击放大</span>
                     </div>
                     
                     <div className="relative group/scroll">
@@ -215,14 +215,14 @@ export const TeacherShowcase: React.FC = () => {
                       <div 
                         ref={el => scrollContainerRefs.current[teacher.id] = el}
                         onScroll={handleScroll(teacher.id)}
-                        className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+                        className="flex gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                       >
                         {teacher.works.map((work, i) => (
                           <div 
                             key={i} 
                             onClick={() => work ? setSelectedImage(work) : null}
-                            className={`w-32 md:w-40 shrink-0 aspect-square rounded-xl overflow-hidden shadow-sm group/work bg-stone-50 border border-stone-100 relative snap-start ${work ? 'cursor-pointer' : ''}`}
+                            className={`w-28 md:w-40 shrink-0 aspect-square rounded-xl overflow-hidden shadow-sm group/work bg-stone-50 border border-stone-100 relative snap-start ${work ? 'cursor-pointer' : ''}`}
                           >
                             {work ? (
                               <img 
@@ -272,33 +272,18 @@ export const TeacherShowcase: React.FC = () => {
                 </div>
 
                 {/* Footer Quote/Tag */}
-                <div className="mt-12 pt-8 border-t border-stone-50 flex justify-between items-center shrink-0">
+                <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-stone-50 flex justify-between items-center shrink-0">
                    <div className="flex items-center gap-2">
-                     <div className="w-2 h-2 rounded-full bg-lotus-green"></div>
-                     <span className="text-[10px] font-bold text-stone-400 tracking-widest uppercase">Professional Faculty</span>
+                     <div className="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-lotus-green"></div>
+                     <span className="text-[9px] md:text-[10px] font-bold text-stone-400 tracking-widest uppercase">Professional Faculty</span>
                    </div>
-                   <div className="text-[10px] font-serif italic text-stone-300">Ten Mile Lotus Pond</div>
+                   <div className="text-[9px] md:text-[10px] font-serif italic text-stone-300">Ten Mile Lotus Pond</div>
                 </div>
               </div>
             </div>
           </div>
         </motion.div>
       ))}
-
-      {/* Add Teacher Button */}
-      <div className="flex justify-center pt-8">
-        <button 
-          onClick={addTeacher}
-          className="group flex items-center gap-4 bg-white border border-stone-200 text-ink-black px-10 py-4 rounded-full font-bold tracking-widest hover:bg-ink-black hover:text-white transition-all shadow-sm hover:shadow-xl"
-        >
-          <span className="w-6 h-6 bg-stone-100 group-hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-          </span>
-          新增教师展示
-        </button>
-      </div>
 
       {/* 图片放大全屏弹窗 */}
       <AnimatePresence>

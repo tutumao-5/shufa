@@ -12,6 +12,17 @@
   --color-lotus-green: #4A6741;
   --color-sage: #E8EBE4;
   --color-gold: #C5A059;
+
+  @keyframes slow-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  --animate-slow-spin: slow-spin 20s linear infinite;
+
+  @keyframes ink-spread {
+    0% { transform: scale(0); opacity: 0.5; filter: blur(20px); }
+    100% { transform: scale(1); opacity: 0; filter: blur(40px); }
+  }
 }
 
 @layer base {
@@ -39,6 +50,11 @@
 }
 
 @layer components {
+  .ink-spread {
+    @apply absolute rounded-full bg-ink-black pointer-events-none;
+    animation: ink-spread 4s ease-out forwards;
+  }
+
   .glass-nav {
     @apply backdrop-blur-xl bg-paper-white/70 border-b border-black/5;
   }

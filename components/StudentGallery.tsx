@@ -27,17 +27,17 @@ export const StudentGallery: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20">
       
       {/* Left Column: Awards (获奖成绩) */}
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-2xl md:text-3xl font-black serif-font text-ink-black">获奖成绩</h3>
-            <p className="text-stone-400 text-[10px] md:text-xs tracking-[0.2em] uppercase font-bold">Student Awards</p>
+            <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">获奖成绩</h3>
+            <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Student Awards</p>
           </div>
         </div>
 
-        <div className="relative h-[400px] md:h-[500px] bg-stone-50 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-stone-100 shadow-inner group">
+        <div className="relative h-[320px] md:h-[500px] bg-stone-50 rounded-[1.5rem] md:rounded-[3rem] overflow-hidden border border-stone-100 shadow-inner group">
           {awards.length > 0 ? (
-            <div className="absolute inset-0 py-10">
+            <div className="absolute inset-0 py-6 md:py-10">
               <motion.div 
                 animate={{ 
                   y: ["0%", "-50%"] 
@@ -47,7 +47,7 @@ export const StudentGallery: React.FC = () => {
                   repeat: Infinity, 
                   ease: "linear" 
                 }}
-                className="flex flex-col gap-6 px-6 md:px-12"
+                className="flex flex-col gap-4 md:gap-6 px-4 md:px-12"
               >
                 {duplicatedAwards.map((award, idx) => (
                   <div key={`${award.id}-${idx}`} className="relative aspect-[4/3] w-full shrink-0 rounded-xl overflow-hidden shadow-md border-4 border-white group/award">
@@ -77,15 +77,15 @@ export const StudentGallery: React.FC = () => {
       </div>
 
       {/* Right Column: Calligraphy Works (书法成果作品) */}
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-2xl md:text-3xl font-black serif-font text-ink-black">书法成果作品</h3>
-            <p className="text-stone-400 text-[10px] md:text-xs tracking-[0.2em] uppercase font-bold">Calligraphy Works</p>
+            <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法成果作品</h3>
+            <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Calligraphy Works</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 gap-3 md:gap-6">
           {/* Static Placeholders + Uploaded Works */}
           <AnimatePresence mode="popLayout">
             {works.map((work) => (
@@ -95,7 +95,7 @@ export const StudentGallery: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 key={work.id} 
-                className="relative aspect-[3/4] rounded-2xl md:rounded-[2rem] overflow-hidden shadow-lg border-4 border-white group/work"
+                className="relative aspect-[3/4] rounded-xl md:rounded-[2rem] overflow-hidden shadow-lg border-2 md:border-4 border-white group/work"
               >
                 <img src={work.imageUrl} alt="Work" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                 <button 
