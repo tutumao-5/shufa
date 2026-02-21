@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 
@@ -14,9 +13,10 @@ interface Teacher {
 export const TeacherShowcase: React.FC = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([
     {
-      id: Date.now(),
+      id: 1, // 这里使用固定ID而不是Date.now()，因为这是初始数据
       name: '王海芬',
-      photo: '',
+      // 下面这行是关键修改：填入你上传的图片路径
+      photo: '/images/faculty/wang-haifen-portrait.png', 
       awards: [
         '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛二等奖。',
         '乐清市教育工会关于开展庆祝第132个“五一”国际劳动节乐清市教职工书法比赛获三等奖',
@@ -28,7 +28,8 @@ export const TeacherShowcase: React.FC = () => {
         '乐清市书法家协会会员-王海芬'
       ],
       works: ['', '', ''],
-      bio: ''
+      // 可以在这里填入老师的简介，如果不填会显示占位符
+      bio: '王海芬老师致力于书法教育多年，以传承传统文化为己任，教学风格严谨而富有激情。' 
     }
   ]);
 
