@@ -1,9 +1,11 @@
+
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 
 interface Teacher {
   id: number;
   name: string;
+  photo: string;
   awards: string[];
   works: string[];
   bio: string;
@@ -14,14 +16,18 @@ export const TeacherShowcase: React.FC = () => {
     {
       id: Date.now(),
       name: '王海芬',
+      photo: '',
       awards: [
-        '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛书法类三等奖（作品：《苏东坡 题跋》）',
-        '庆“五一”乐清市教职工书法比赛三等奖',
-        '“助力乡村振兴”——寻找地标产品胶州大白菜书画展征稿活动书法作品佳作奖',
-        '第二届“德翔杯”迎新春书画作品展入选作品',
-        '“知临杯”乐清市书法篆刻大展入展'
+        '“丹青绘宏图、翰墨谱新篇”乐清市机关献礼建党百年华诞、庆“三八”书画比赛二等奖。',
+        '乐清市教育工会关于开展庆祝第132个“五一”国际劳动节乐清市教职工书法比赛获三等奖',
+        '温州市第九届视觉艺术大赛中入展',
+        '胶州大白菜.乡村振兴主题文化公益展获佳作奖',
+        '吉林省第二届“德翔杯”迎新春书画大赛中入展',
+        '乐清市“知临杯”书法篆刻大展中入展',
+        '笔墨雅韵奖第二届全国书法公益大赛中入展',
+        '乐清市书法家协会会员-王海芬'
       ],
-      works: [],
+      works: ['', '', ''],
       bio: ''
     }
   ]);
@@ -32,11 +38,13 @@ export const TeacherShowcase: React.FC = () => {
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
   };
 
-  const handleImageUpload = (id: number, field: 'works', index?: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (id: number, field: 'photo' | 'works', index?: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      if (typeof index === 'number') {
+      if (field === 'photo') {
+        handleUpdateTeacher(id, 'photo', url);
+      } else if (typeof index === 'number') {
         const teacher = teachers.find(t => t.id === id);
         if (teacher) {
           const newWorks = [...teacher.works];
@@ -60,8 +68,9 @@ export const TeacherShowcase: React.FC = () => {
     setTeachers([...teachers, {
       id: Date.now(),
       name: '',
+      photo: '',
       awards: ['', '', ''],
-      works: [], 
+      works: ['', '', ''],
       bio: ''
     }]);
   };
@@ -73,119 +82,174 @@ export const TeacherShowcase: React.FC = () => {
   };
 
   return (
-    <div className="grid gap-24 md:gap-32">
+    <div className="space-y-20 md:space-y-32">
       {teachers.map((teacher, index) => (
         <motion.div 
           key={teacher.id}
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative flex flex-col gap-12 items-center group/teacher"
+          transition={{ duration: 0.8, delay: index * 0.1 }}
+          className="relative group/teacher max-w-6xl mx-auto"
         >
           {/* Delete Button */}
           {teachers.length > 1 && (
             <button 
               onClick={() => removeTeacher(teacher.id)}
-              className="absolute -top-6 -right-6 w-10 h-10 bg-vermilion text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover/teacher:opacity-100 transition-opacity z-20 hover:scale-110"
+              className="absolute -top-4 -right-4 w-8 h-8 bg-vermilion text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover/teacher:opacity-100 transition-opacity z-30 hover:scale-110"
             >
               ✕
             </button>
           )}
 
-          {/* Teacher Info Pane - 加入了 min-w-0 和 overflow-hidden */}
-          <div className="w-full space-y-8 min-w-0 overflow-hidden">
-            <div className="space-y-4">
-              <div className="flex flex-col md:flex-row md:items-baseline gap-4">
-                <input 
-                  value={teacher.name}
-                  onChange={(e) => handleUpdateTeacher(teacher.id, 'name', e.target.value)}
-                  placeholder="教师姓名"
-                  className="text-4xl md:text-5xl font-black font-calligraphy text-ink-black bg-transparent border-b border-transparent hover:border-stone-200 focus:border-vermilion outline-none w-full md:w-auto"
-                />
+          <div className="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-sm border border-stone-100 hover:shadow-xl transition-shadow duration-700">
+            <div className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
+              
+              {/* Photo Section */}
+              <div className="lg:w-2/5 relative overflow-hidden group/photo">
+                <div 
+                  onClick={() => fileInputRefs.current[`photo-${teacher.id}`]?.click()}
+                  className="aspect-[4/5] lg:aspect-auto lg:h-full bg-stone-50 cursor-pointer relative"
+                >
+                  {teacher.photo ? (
+                    <img 
+                      src={teacher.photo} 
+                      alt={teacher.name} 
+                      className="w-full h-full object-cover grayscale group-hover/photo:grayscale-0 group-hover/photo:scale-105 transition-all duration-1000"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-stone-300 gap-3">
+                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-stone-200 flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                      </div>
+                      <span className="text-[10px] font-bold tracking-widest uppercase">上传艺术照</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover/photo:bg-black/5 transition-colors" />
+                  <input 
+                    type="file" 
+                    ref={el => fileInputRefs.current[`photo-${teacher.id}`] = el}
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleImageUpload(teacher.id, 'photo')} 
+                  />
+                </div>
+                
+                {/* Vertical Name Tag */}
+                <div className={`absolute bottom-8 ${index % 2 === 0 ? 'right-8' : 'left-8'} z-10`}>
+                   <div className="serif-vertical bg-white/90 backdrop-blur px-3 py-6 rounded-sm shadow-xl border border-white/50">
+                     <span className="text-3xl font-black font-calligraphy text-ink-black tracking-widest">{teacher.name || '待输入'}</span>
+                   </div>
+                </div>
               </div>
-              <textarea 
-                value={teacher.bio}
-                onChange={(e) => handleUpdateTeacher(teacher.id, 'bio', e.target.value)}
-                placeholder="在此输入教师简介，描述其教学风格与艺术见解..."
-                className="w-full text-stone-600 leading-relaxed text-lg italic serif-font bg-transparent border-b border-transparent hover:border-stone-200 focus:border-vermilion outline-none min-h-[100px] resize-none"
-              />
-            </div>
 
-            {/* Awards Pane */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-black tracking-[0.3em] text-stone-400 uppercase flex items-center gap-2">
-                <span className="w-8 h-px bg-stone-200"></span>
-                获奖荣誉 / Awards
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {teacher.awards.map((award, i) => (
-                  <div key={i} className="flex items-center gap-3 text-stone-700 bg-white/50 p-3 rounded-lg border border-stone-100 shadow-sm group/award">
-                    <span className="w-1.5 h-1.5 bg-vermilion rounded-full shrink-0"></span>
-                    <input 
-                      value={award}
-                      onChange={(e) => handleAwardChange(teacher.id, i, e.target.value)}
-                      placeholder={`荣誉奖项 ${i + 1}`}
-                      className="text-sm font-medium bg-transparent outline-none w-full"
+              {/* Content Section */}
+              <div className="lg:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-white">
+                <div className="space-y-10">
+                  {/* Bio */}
+                  <div className="relative">
+                    <div className="absolute -top-4 -left-4 text-6xl font-serif text-stone-100 select-none">“</div>
+                    <textarea 
+                      value={teacher.bio}
+                      onChange={(e) => handleUpdateTeacher(teacher.id, 'bio', e.target.value)}
+                      placeholder="在此输入教师简介，描述其教学风格与艺术见解..."
+                      className="w-full text-stone-600 leading-relaxed text-base md:text-lg italic serif-font bg-transparent border-none focus:ring-0 outline-none min-h-[80px] resize-none relative z-10"
                     />
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Works Gallery Pane - 自动滚动闪烁版 */}
-            <div className="space-y-4 w-full relative">
-              <h4 className="text-xs font-black tracking-[0.3em] text-stone-400 uppercase flex items-center gap-2 mb-6">
-                <span className="w-8 h-px bg-stone-200"></span>
-                作品展示 / Portfolio
-              </h4>
-              
-              {/* 滚动视口容器 */}
-              <div className="relative w-full overflow-hidden rounded-xl py-2">
-                {/* 左右遮罩，营造边缘水墨虚化感 */}
-                <div className="absolute inset-y-0 left-0 w-8 md:w-12 bg-gradient-to-r from-[#FAF7F0] to-transparent z-10 pointer-events-none"></div>
-                <div className="absolute inset-y-0 right-0 w-8 md:w-12 bg-gradient-to-l from-[#FAF7F0] to-transparent z-10 pointer-events-none"></div>
-                
-                {/* 滚动的长条 */}
-                <div className="animate-marquee flex gap-4 md:gap-6">
-                  {/* 生成 32 张图(16张重复两次)以实现无缝循环滚动 */}
-                  {[...Array(16), ...Array(16)].map((_, i) => {
-                    const imageIndex = (i % 16) + 1; 
-                    return (
-                      <div 
-                        key={i} 
-                        className="w-24 md:w-36 shrink-0 aspect-[1/3] rounded-sm overflow-hidden shadow-[4px_4px_10px_rgba(0,0,0,0.1)] border border-stone-200 bg-white animate-flash"
-                        style={{ animationDelay: `${(i % 5) * 0.8}s` }}
-                      >
-                        {/* 核心修复：使用了相对路径 ./ 以适配云端沙盒环境，并添加 .jpg.jpg */}
-                        <img 
-                          src={`./works/work-${imageIndex}.jpg.jpg`} 
-                          alt={`书法作品 ${imageIndex}`} 
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-700 cursor-pointer"
-                        />
-                      </div>
-                    );
-                  })}
+                  {/* Awards */}
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black tracking-[0.3em] text-stone-300 uppercase flex items-center gap-3">
+                      <span className="w-6 h-px bg-stone-100"></span>
+                      荣誉奖项 / Honors
+                    </h4>
+                    <div className="space-y-2">
+                      {teacher.awards.map((award, i) => (
+                        <div key={i} className="flex items-start gap-3 group/award">
+                          <span className="w-1 h-1 bg-vermilion rounded-full mt-2.5 shrink-0 opacity-40 group-hover/award:opacity-100 transition-opacity"></span>
+                          <input 
+                            value={award}
+                            onChange={(e) => handleAwardChange(teacher.id, i, e.target.value)}
+                            placeholder={`荣誉奖项 ${i + 1}`}
+                            className="text-sm text-stone-500 font-medium bg-transparent outline-none w-full border-b border-transparent hover:border-stone-100 focus:border-vermilion/30 transition-colors py-1"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Portfolio */}
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black tracking-[0.3em] text-stone-300 uppercase flex items-center gap-3">
+                      <span className="w-6 h-px bg-stone-100"></span>
+                      作品展示 / Portfolio
+                    </h4>
+                    <div className="grid grid-cols-3 gap-3 md:gap-4">
+                      {teacher.works.map((work, i) => (
+                        <div 
+                          key={i} 
+                          onClick={() => fileInputRefs.current[`work-${teacher.id}-${i}`]?.click()}
+                          className="aspect-square rounded-xl overflow-hidden shadow-sm group/work cursor-pointer bg-stone-50 border border-stone-100 relative"
+                        >
+                          {work ? (
+                            <img 
+                              src={work} 
+                              alt="Work" 
+                              className="w-full h-full object-cover group-hover/work:scale-110 transition-transform duration-700"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-stone-200">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4"></path>
+                              </svg>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/5 transition-colors flex items-center justify-center">
+                             <span className="bg-white/90 px-2 py-1 rounded-full text-[8px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">上传</span>
+                          </div>
+                          <input 
+                            type="file" 
+                            ref={el => fileInputRefs.current[`work-${teacher.id}-${i}`] = el}
+                            className="hidden" 
+                            accept="image/*" 
+                            onChange={handleImageUpload(teacher.id, 'works', i)} 
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Quote/Tag */}
+                <div className="mt-12 pt-8 border-t border-stone-50 flex justify-between items-center">
+                   <div className="flex items-center gap-2">
+                     <div className="w-2 h-2 rounded-full bg-lotus-green"></div>
+                     <span className="text-[10px] font-bold text-stone-400 tracking-widest uppercase">Professional Faculty</span>
+                   </div>
+                   <div className="text-[10px] font-serif italic text-stone-300">Ten Mile Lotus Pond</div>
                 </div>
               </div>
             </div>
-
           </div>
         </motion.div>
       ))}
 
       {/* Add Teacher Button */}
-      <div className="flex justify-center pt-12">
+      <div className="flex justify-center pt-8">
         <button 
           onClick={addTeacher}
-          className="group flex items-center gap-4 bg-ink-black text-white px-12 py-5 rounded-full font-black tracking-widest hover:bg-vermilion transition-all shadow-2xl hover:-translate-y-2"
+          className="group flex items-center gap-4 bg-white border border-stone-200 text-ink-black px-10 py-4 rounded-full font-bold tracking-widest hover:bg-ink-black hover:text-white transition-all shadow-sm hover:shadow-xl"
         >
-          <span className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          <span className="w-6 h-6 bg-stone-100 group-hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
           </span>
-          添加更多教师展示位
+          新增教师展示
         </button>
       </div>
     </div>
