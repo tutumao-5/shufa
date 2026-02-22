@@ -11,12 +11,13 @@ interface Teacher {
 }
 
 export const TeacherShowcase: React.FC = () => {
-  const [scrollProgress, setScrollProgress] = useState<{ [key: number]: number }>({});
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
+  // 性能优化：使用 useRef 替代 useState 来处理滚动进度，避免高频重绘卡顿
   const scrollContainerRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const progressBarRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
-  const [teachers, setTeachers] = useState<Teacher[]>([
+  const [teachers] = useState<Teacher[]>([
     {
       id: 1,
       name: '王海芬',
@@ -36,23 +37,29 @@ export const TeacherShowcase: React.FC = () => {
     }
   ]);
 
+  // 直接操作 DOM 进度条宽度，彻底消除 React 重绘造成的滚动延迟
   const handleScroll = (id: number) => (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollWidth = container.scrollWidth - container.clientWidth;
     if (scrollWidth > 0) {
       const progress = (container.scrollLeft / scrollWidth) * 100;
-      setScrollProgress(prev => ({ ...prev, [id]: progress }));
+      const bar = progressBarRefs.current[id];
+      if (bar) {
+        bar.style.width = `${Math.max(progress, 15)}%`;
+      }
     }
   };
 
   const handleSliderChange = (id: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const progress = Number(e.target.value);
-    setScrollProgress(prev => ({ ...prev, [id]: progress }));
-    
     const container = scrollContainerRefs.current[id];
     if (container) {
       const scrollWidth = container.scrollWidth - container.clientWidth;
       container.scrollLeft = (progress / 100) * scrollWidth;
+    }
+    const bar = progressBarRefs.current[id];
+    if (bar) {
+      bar.style.width = `${Math.max(progress, 15)}%`;
     }
   };
 
@@ -80,7 +87,7 @@ export const TeacherShowcase: React.FC = () => {
                     <img 
                       src={teacher.photo} 
                       alt={teacher.name} 
-                      loading="lazy" // 优化：添加懒加载
+                      loading="lazy" 
                       className="w-full h-full object-cover group-hover/photo:scale-105 transition-all duration-1000"
                       referrerPolicy="no-referrer"
                     />
@@ -103,8 +110,9 @@ export const TeacherShowcase: React.FC = () => {
                   )}
                 </div>
                 
+                {/* 性能优化：去除了背景的高耗能 backdrop-blur */}
                 <div className={`absolute bottom-8 ${index % 2 === 0 ? 'right-8' : 'left-8'} z-10 pointer-events-none`}>
-                   <div className="serif-vertical bg-white/90 backdrop-blur px-3 py-6 rounded-sm shadow-xl border border-white/50">
+                   <div className="serif-vertical bg-white/95 px-3 py-6 rounded-sm shadow-xl border border-white/50">
                      <span className="text-3xl font-black font-calligraphy text-ink-black tracking-widest">{teacher.name || '待输入'}</span>
                    </div>
                 </div>
@@ -151,10 +159,11 @@ export const TeacherShowcase: React.FC = () => {
                     </div>
                     
                     <div className="relative group/scroll">
+                      {/* 性能优化：强制开启 GPU 硬件加速 (transform-gpu) */}
                       <div 
                         ref={el => scrollContainerRefs.current[teacher.id] = el}
                         onScroll={handleScroll(teacher.id)}
-                        className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+                        className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                       >
                         {teacher.works.map((work, i) => (
@@ -167,7 +176,7 @@ export const TeacherShowcase: React.FC = () => {
                               <img 
                                 src={work} 
                                 alt={`Work ${i+1}`} 
-                                loading="lazy" // 优化：添加懒加载
+                                loading="lazy" 
                                 className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
@@ -190,16 +199,17 @@ export const TeacherShowcase: React.FC = () => {
                       </div>
 
                       <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full">
-                        <motion.div 
-                          className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none"
-                          animate={{ width: `${Math.max(scrollProgress[teacher.id] || 0, 15)}%` }}
-                          transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+                        {/* 性能优化：移除 Framer motion 弹簧动画，改用原生 div 直接接受 ref 指令 */}
+                        <div 
+                          ref={el => progressBarRefs.current[teacher.id] = el}
+                          className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none transition-none"
+                          style={{ width: '15%' }}
                         />
                         <input 
                           type="range" 
                           min="0" 
                           max="100" 
-                          value={scrollProgress[teacher.id] || 0}
+                          defaultValue="0"
                           onChange={handleSliderChange(teacher.id)}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
@@ -227,7 +237,8 @@ export const TeacherShowcase: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 md:p-8"
+            /* 性能优化：将背景 bg-black/85 backdrop-blur-sm 改为纯净高防抖的 bg-black/95 */
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8"
             onClick={() => setSelectedImage(null)} 
           >
             <button 
