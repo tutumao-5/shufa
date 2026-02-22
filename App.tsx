@@ -141,38 +141,38 @@ const App: React.FC = () => {
             {isMobileMenuOpen ? '✕' : '☰'}
           </button>
         </div>
+      </nav>
 
-        {isMobileMenuOpen && (
-          /* 核心修复：添加 touch-none 类，拦截触摸滑动事件，防止 iOS Safari 滚动穿透引起的界面卡死 */
-          <div className="md:hidden fixed inset-0 z-[60] bg-paper-white flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300 touch-none">
-            <button 
-              className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center text-2xl bg-stone-100 rounded-full" 
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              ✕
-            </button>
-            <div className="flex flex-col items-center space-y-8 w-full">
-              {navItems.map((item, idx) => (
-                <a 
-                  key={item.id} 
-                  href={`#${item.id}`} 
-                  className="text-2xl font-serif text-ink-black tracking-widest hover:text-vermilion transition-colors" 
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </a>
-              ))}
-              <div className="pt-8 w-full">
-                <a href="#contact" className="block w-full bg-vermilion text-white text-center py-5 rounded-2xl font-bold shadow-xl text-xl" onClick={() => setIsMobileMenuOpen(false)}>立即预约试听</a>
-              </div>
-            </div>
-            <div className="absolute bottom-12 text-stone-300 text-[10px] tracking-[0.5em] uppercase font-bold">
-              Ten Mile Lotus Pond
+      {/* 核心修复点：将移动端菜单移出 nav 标签的层级之外。这样它就不会被 nav 在下滑时产生的 backdrop-filter 影响定位基准，从而完美保持全屏高度展示 */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[60] bg-paper-white flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300 touch-none">
+          <button 
+            className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center text-2xl bg-stone-100 rounded-full" 
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            ✕
+          </button>
+          <div className="flex flex-col items-center space-y-8 w-full">
+            {navItems.map((item, idx) => (
+              <a 
+                key={item.id} 
+                href={`#${item.id}`} 
+                className="text-2xl font-serif text-ink-black tracking-widest hover:text-vermilion transition-colors" 
+                style={{ animationDelay: `${idx * 100}ms` }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.name}
+              </a>
+            ))}
+            <div className="pt-8 w-full">
+              <a href="#contact" className="block w-full bg-vermilion text-white text-center py-5 rounded-2xl font-bold shadow-xl text-xl" onClick={() => setIsMobileMenuOpen(false)}>立即预约试听</a>
             </div>
           </div>
-        )}
-      </nav>
+          <div className="absolute bottom-12 text-stone-300 text-[10px] tracking-[0.5em] uppercase font-bold">
+            Ten Mile Lotus Pond
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section id="home" className="relative min-h-[90vh] md:h-screen flex items-center justify-center overflow-hidden pt-20">
