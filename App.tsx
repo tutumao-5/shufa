@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react'; // 新增导入，用于图片放大弹窗的动画
+import { motion, AnimatePresence } from 'motion/react'; 
 import { COURSES } from './constants';
 import { TeacherShowcase } from './components/TeacherShowcase';
 import { InkCanvas } from './components/InkCanvas';
@@ -10,14 +10,12 @@ const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // 用于控制全局图片放大的状态（目前用于 Logo）
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const progressTrackRef = useRef<HTMLDivElement>(null);
 
-  // 表单状态管理
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -27,7 +25,6 @@ const App: React.FC = () => {
   const [formError, setFormError] = useState('');
   const [isSubmitSuccess, setIsSubmitSuccess] = useState(false);
 
-  // 导航项配置
   const navItems = [
     { name: '首页', id: 'home' },
     { name: '教学优势', id: 'advantages' },
@@ -36,24 +33,12 @@ const App: React.FC = () => {
     { name: '课程体系', id: 'courses' },
   ];
 
+  // 监听页面滚动，用于改变导航栏样式
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // 新增逻辑：控制手机端导航菜单打开时，禁止背景滚动
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    // 组件卸载时恢复默认
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMobileMenuOpen]);
 
   const handleHorizontalScroll = () => {
     if (scrollContainerRef.current) {
@@ -120,7 +105,6 @@ const App: React.FC = () => {
       }`}>
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Logo 区域：移除上传逻辑，改为点击放大 */}
             <div 
               onClick={() => setSelectedImage(localLogo)}
               className="w-10 h-10 md:w-14 md:h-14 bg-ink-black rounded-full flex items-center justify-center text-white transition-all duration-500 hover:bg-vermilion cursor-pointer overflow-hidden border-2 border-transparent hover:border-white shadow-lg relative group"
@@ -159,7 +143,8 @@ const App: React.FC = () => {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-[60] bg-paper-white flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300">
+          /* 核心修复：添加 touch-none 类，拦截触摸滑动事件，防止 iOS Safari 滚动穿透引起的界面卡死 */
+          <div className="md:hidden fixed inset-0 z-[60] bg-paper-white flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300 touch-none">
             <button 
               className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center text-2xl bg-stone-100 rounded-full" 
               onClick={() => setIsMobileMenuOpen(false)}
