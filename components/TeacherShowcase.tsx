@@ -32,7 +32,6 @@ export const TeacherShowcase: React.FC = () => {
         '乐清市“知临杯”书法篆刻大展入展'
       ],
       works: Array.from({ length: 16 }, (_, i) => `${import.meta.env.BASE_URL}images/faculty/works/work-${i + 1}.png`),
-      // 优化：去掉了多余的换行符 \n
       bio: '【教学承诺】校长亲自执教\n书法之教，贵在“懂孩子、通教育”。王老师深耕一线教学25载，专注书法教育12年，集深厚的教育学积淀与极致的耐心于一身。\n我们深信，学习书法不仅是技法的磨练，更是心理与审美的共鸣。选择一位懂教育的专业良师，将为孩子开启一段受益终身的艺术之旅。'
     }
   ]);
@@ -81,6 +80,7 @@ export const TeacherShowcase: React.FC = () => {
                     <img 
                       src={teacher.photo} 
                       alt={teacher.name} 
+                      loading="lazy" // 优化：添加懒加载
                       className="w-full h-full object-cover group-hover/photo:scale-105 transition-all duration-1000"
                       referrerPolicy="no-referrer"
                     />
@@ -114,7 +114,7 @@ export const TeacherShowcase: React.FC = () => {
               <div className="lg:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-hidden">
                 <div className="space-y-10">
                   
-                  {/* Bio - 核心优化：将 textarea 替换为自动适应高度的 div */}
+                  {/* Bio */}
                   <div className="relative">
                     <div className="absolute -top-4 -left-4 text-6xl font-serif text-stone-100 select-none">“</div>
                     <div className="w-full text-stone-600 leading-loose text-base md:text-lg italic serif-font relative z-10 whitespace-pre-line">
@@ -122,7 +122,7 @@ export const TeacherShowcase: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Awards - 顺便将奖项也改为了纯展示的文本，防止家长误触键盘弹出 */}
+                  {/* Awards */}
                   <div className="space-y-4">
                     <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
                       <span className="w-8 h-px bg-vermilion/30"></span>
@@ -167,6 +167,7 @@ export const TeacherShowcase: React.FC = () => {
                               <img 
                                 src={work} 
                                 alt={`Work ${i+1}`} 
+                                loading="lazy" // 优化：添加懒加载
                                 className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
