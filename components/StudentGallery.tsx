@@ -8,18 +8,14 @@ interface GalleryItem {
 }
 
 export const StudentGallery: React.FC = () => {
-  // 左侧：自动生成 18 张获奖照片的路径 (保持为 .png)
   const initialAwards: GalleryItem[] = Array.from({ length: 18 }, (_, i) => ({
     id: `award-${i + 1}`,
     title: `获奖荣誉 ${i + 1}`,
     imageUrl: `${import.meta.env.BASE_URL}images/students/awards/${i + 1}.png`
   }));
 
-  // 右侧：自动生成 20 张书法成果作品的路径
-  // 核心修复：根据您 GitHub 仓库的真实格式，精准匹配 .jpeg 和 .jpg 后缀
   const initialWorks: GalleryItem[] = Array.from({ length: 20 }, (_, i) => {
     const index = i + 1;
-    // 仓库中 zp1 和 zp2 是 .jpeg 格式，zp3 到 zp20 是 .jpg 格式
     const ext = (index === 1 || index === 2) ? 'jpeg' : 'jpg';
     return {
       id: `work-${index}`,
@@ -30,18 +26,13 @@ export const StudentGallery: React.FC = () => {
 
   const [awards] = useState<GalleryItem[]>(initialAwards);
   const [works] = useState<GalleryItem[]>(initialWorks);
-  
-  // 控制放大弹窗的状态（全局共用）
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
-  // ================= 性能优化：使用 useRef 替代 useState 控制滑动 =================
   const awardsScrollRef = useRef<HTMLDivElement>(null);
   const awardsProgressBarRef = useRef<HTMLDivElement>(null);
-  
   const worksScrollRef = useRef<HTMLDivElement>(null);
   const worksProgressBarRef = useRef<HTMLDivElement>(null);
 
-  // ================= 左侧获奖成绩滑动控制 =================
   const handleAwardsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollWidth = container.scrollWidth - container.clientWidth;
@@ -64,7 +55,6 @@ export const StudentGallery: React.FC = () => {
     }
   };
 
-  // ================= 右侧书法成果滑动控制 =================
   const handleWorksScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollWidth = container.scrollWidth - container.clientWidth;
@@ -101,27 +91,33 @@ export const StudentGallery: React.FC = () => {
         </div>
 
         <div className="relative group/scroll">
-          {/* 性能优化：添加 transform-gpu 开启硬件加速 */}
           <div 
             ref={awardsScrollRef}
             onScroll={handleAwardsScroll}
             className="grid grid-rows-3 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {awards.map((award) => (
+            {awards.map((award, index) => (
               <div 
                 key={award.id} 
                 onClick={() => setSelectedImage(award.imageUrl)}
-                className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative"
+                // 开启呼吸灯背景
+                className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative bg-stone-200 animate-pulse"
               >
                 <img 
                   src={award.imageUrl} 
                   alt={award.title} 
-                  loading="lazy" 
-                  decoding="async" // 核心优化：异步解码
-                  className="w-full h-full object-cover group-hover/award:scale-105 transition-transform duration-700" 
+                  loading={index < 3 ? "eager" : "lazy"} // 确保前3张图片（第一列）优先加载
+                  fetchPriority={index < 3 ? "high" : "auto"}
+                  decoding="async" 
+                  // 加载完成后平滑渐显并取消骨架屏
+                  onLoad={(e) => {
+                    e.currentTarget.classList.remove('opacity-0');
+                    e.currentTarget.parentElement?.classList.remove('animate-pulse');
+                  }}
+                  className="w-full h-full object-cover group-hover/award:scale-105 transition-all duration-700 opacity-0 relative z-10" 
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
                    <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
                      点击放大
                    </span>
@@ -131,7 +127,6 @@ export const StudentGallery: React.FC = () => {
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-            {/* 性能优化：移除 Framer motion，使用原生 ref 驱动 */}
             <div 
               ref={awardsProgressBarRef}
               className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none transition-none"
@@ -160,27 +155,33 @@ export const StudentGallery: React.FC = () => {
         </div>
 
         <div className="relative group/scroll">
-          {/* 性能优化：添加 transform-gpu 开启硬件加速 */}
           <div 
             ref={worksScrollRef}
             onScroll={handleWorksScroll}
             className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {works.map((work) => (
+            {works.map((work, index) => (
               <div 
                 key={work.id} 
                 onClick={() => setSelectedImage(work.imageUrl)}
-                className="w-32 md:w-40 shrink-0 aspect-[3/4] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/work cursor-pointer snap-start relative"
+                // 开启呼吸灯背景
+                className="w-32 md:w-40 shrink-0 aspect-[3/4] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/work cursor-pointer snap-start relative bg-stone-200 animate-pulse"
               >
                 <img 
                   src={work.imageUrl} 
                   alt={work.title} 
-                  loading="lazy" 
-                  decoding="async" // 核心优化：异步解码
-                  className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-700" 
+                  loading={index < 2 ? "eager" : "lazy"} // 确保前2张图片（第一列）优先加载
+                  fetchPriority={index < 2 ? "high" : "auto"}
+                  decoding="async" 
+                  // 加载完成后平滑渐显并取消骨架屏
+                  onLoad={(e) => {
+                    e.currentTarget.classList.remove('opacity-0');
+                    e.currentTarget.parentElement?.classList.remove('animate-pulse');
+                  }}
+                  className="w-full h-full object-cover group-hover/work:scale-105 transition-all duration-700 opacity-0 relative z-10" 
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
                    <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">
                      点击放大
                    </span>
@@ -190,7 +191,6 @@ export const StudentGallery: React.FC = () => {
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-            {/* 性能优化：移除 Framer motion，使用原生 ref 驱动 */}
             <div 
               ref={worksProgressBarRef}
               className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none transition-none"
@@ -208,14 +208,13 @@ export const StudentGallery: React.FC = () => {
         </div>
       </div>
 
-      {/* ================= 图片放大全屏弹窗 (全局共用) ================= */}
+      {/* ================= 图片放大全屏弹窗 ================= */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            /* 性能优化：将高耗能的 backdrop-blur-sm 替换为纯色 bg-black/95 */
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8"
             onClick={() => setSelectedImage(null)} 
           >
@@ -238,7 +237,7 @@ export const StudentGallery: React.FC = () => {
               src={selectedImage} 
               alt="Enlarged view" 
               loading="lazy" 
-              decoding="async" // 核心优化：异步解码弹窗图片
+              decoding="async" 
               className="max-w-full max-h-full object-contain shadow-2xl rounded-sm"
               onClick={(e) => e.stopPropagation()} 
             />
