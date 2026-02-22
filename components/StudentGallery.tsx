@@ -8,19 +8,25 @@ interface GalleryItem {
 }
 
 export const StudentGallery: React.FC = () => {
-  // 左侧：自动生成 18 张获奖照片的路径 (1.png ~ 18.png)
+  // 左侧：自动生成 18 张获奖照片的路径 (保持为 .png)
   const initialAwards: GalleryItem[] = Array.from({ length: 18 }, (_, i) => ({
     id: `award-${i + 1}`,
     title: `获奖荣誉 ${i + 1}`,
     imageUrl: `${import.meta.env.BASE_URL}images/students/awards/${i + 1}.png`
   }));
 
-  // 右侧：自动生成 20 张书法成果作品的路径 (zp1.png ~ zp20.png)
-  const initialWorks: GalleryItem[] = Array.from({ length: 20 }, (_, i) => ({
-    id: `work-${i + 1}`,
-    title: `书法作品 ${i + 1}`,
-    imageUrl: `${import.meta.env.BASE_URL}images/students/works/zp${i + 1}.png`
-  }));
+  // 右侧：自动生成 20 张书法成果作品的路径
+  // 核心修复：根据您 GitHub 仓库的真实格式，精准匹配 .jpeg 和 .jpg 后缀
+  const initialWorks: GalleryItem[] = Array.from({ length: 20 }, (_, i) => {
+    const index = i + 1;
+    // 仓库中 zp1 和 zp2 是 .jpeg 格式，zp3 到 zp20 是 .jpg 格式
+    const ext = (index === 1 || index === 2) ? 'jpeg' : 'jpg';
+    return {
+      id: `work-${index}`,
+      title: `书法作品 ${index}`,
+      imageUrl: `${import.meta.env.BASE_URL}images/students/works/zp${index}.${ext}`
+    };
+  });
 
   const [awards] = useState<GalleryItem[]>(initialAwards);
   const [works] = useState<GalleryItem[]>(initialWorks);
