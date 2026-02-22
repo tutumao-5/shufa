@@ -28,45 +28,56 @@ export const StudentGallery: React.FC = () => {
   // 控制放大弹窗的状态（全局共用）
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
-  // ================= 左侧获奖成绩滑动控制 =================
-  const [awardsScrollProgress, setAwardsScrollProgress] = useState(0);
+  // ================= 性能优化：使用 useRef 替代 useState 控制滑动 =================
   const awardsScrollRef = useRef<HTMLDivElement>(null);
+  const awardsProgressBarRef = useRef<HTMLDivElement>(null);
+  
+  const worksScrollRef = useRef<HTMLDivElement>(null);
+  const worksProgressBarRef = useRef<HTMLDivElement>(null);
 
+  // ================= 左侧获奖成绩滑动控制 =================
   const handleAwardsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollWidth = container.scrollWidth - container.clientWidth;
     if (scrollWidth > 0) {
-      setAwardsScrollProgress((container.scrollLeft / scrollWidth) * 100);
+      const progress = (container.scrollLeft / scrollWidth) * 100;
+      if (awardsProgressBarRef.current) {
+        awardsProgressBarRef.current.style.width = `${Math.max(progress, 15)}%`;
+      }
     }
   };
 
   const handleAwardsSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const progress = Number(e.target.value);
-    setAwardsScrollProgress(progress);
     if (awardsScrollRef.current) {
       const scrollWidth = awardsScrollRef.current.scrollWidth - awardsScrollRef.current.clientWidth;
       awardsScrollRef.current.scrollLeft = (progress / 100) * scrollWidth;
     }
+    if (awardsProgressBarRef.current) {
+      awardsProgressBarRef.current.style.width = `${Math.max(progress, 15)}%`;
+    }
   };
 
   // ================= 右侧书法成果滑动控制 =================
-  const [worksScrollProgress, setWorksScrollProgress] = useState(0);
-  const worksScrollRef = useRef<HTMLDivElement>(null);
-
   const handleWorksScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollWidth = container.scrollWidth - container.clientWidth;
     if (scrollWidth > 0) {
-      setWorksScrollProgress((container.scrollLeft / scrollWidth) * 100);
+      const progress = (container.scrollLeft / scrollWidth) * 100;
+      if (worksProgressBarRef.current) {
+        worksProgressBarRef.current.style.width = `${Math.max(progress, 15)}%`;
+      }
     }
   };
 
   const handleWorksSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const progress = Number(e.target.value);
-    setWorksScrollProgress(progress);
     if (worksScrollRef.current) {
       const scrollWidth = worksScrollRef.current.scrollWidth - worksScrollRef.current.clientWidth;
       worksScrollRef.current.scrollLeft = (progress / 100) * scrollWidth;
+    }
+    if (worksProgressBarRef.current) {
+      worksProgressBarRef.current.style.width = `${Math.max(progress, 15)}%`;
     }
   };
 
@@ -84,11 +95,11 @@ export const StudentGallery: React.FC = () => {
         </div>
 
         <div className="relative group/scroll">
-          {/* 获奖成绩：横向 3 行网格 */}
+          {/* 性能优化：添加 transform-gpu 开启硬件加速 */}
           <div 
             ref={awardsScrollRef}
             onScroll={handleAwardsScroll}
-            className="grid grid-rows-3 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+            className="grid grid-rows-3 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {awards.map((award) => (
@@ -97,7 +108,13 @@ export const StudentGallery: React.FC = () => {
                 onClick={() => setSelectedImage(award.imageUrl)}
                 className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative"
               >
-                <img src={award.imageUrl} alt={award.title} className="w-full h-full object-cover group-hover/award:scale-105 transition-transform duration-700" />
+                <img 
+                  src={award.imageUrl} 
+                  alt={award.title} 
+                  loading="lazy" 
+                  decoding="async" // 核心优化：异步解码
+                  className="w-full h-full object-cover group-hover/award:scale-105 transition-transform duration-700" 
+                />
                 <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
                    <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
                      点击放大
@@ -107,18 +124,18 @@ export const StudentGallery: React.FC = () => {
             ))}
           </div>
 
-          {/* 获奖成绩：红色可拖拽进度条 */}
           <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-            <motion.div 
-              className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none"
-              animate={{ width: `${Math.max(awardsScrollProgress, 15)}%` }}
-              transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+            {/* 性能优化：移除 Framer motion，使用原生 ref 驱动 */}
+            <div 
+              ref={awardsProgressBarRef}
+              className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none transition-none"
+              style={{ width: '15%' }}
             />
             <input 
               type="range" 
               min="0" 
               max="100" 
-              value={awardsScrollProgress}
+              defaultValue="0"
               onChange={handleAwardsSlider}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
@@ -137,11 +154,11 @@ export const StudentGallery: React.FC = () => {
         </div>
 
         <div className="relative group/scroll">
-          {/* 书法作品：横向 2 行网格 (适配竖版图片高度) */}
+          {/* 性能优化：添加 transform-gpu 开启硬件加速 */}
           <div 
             ref={worksScrollRef}
             onScroll={handleWorksScroll}
-            className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+            className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {works.map((work) => (
@@ -150,7 +167,13 @@ export const StudentGallery: React.FC = () => {
                 onClick={() => setSelectedImage(work.imageUrl)}
                 className="w-32 md:w-40 shrink-0 aspect-[3/4] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/work cursor-pointer snap-start relative"
               >
-                <img src={work.imageUrl} alt={work.title} className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-700" />
+                <img 
+                  src={work.imageUrl} 
+                  alt={work.title} 
+                  loading="lazy" 
+                  decoding="async" // 核心优化：异步解码
+                  className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-700" 
+                />
                 <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
                    <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">
                      点击放大
@@ -160,18 +183,18 @@ export const StudentGallery: React.FC = () => {
             ))}
           </div>
 
-          {/* 书法作品：红色可拖拽进度条 */}
           <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-            <motion.div 
-              className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none"
-              animate={{ width: `${Math.max(worksScrollProgress, 15)}%` }}
-              transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+            {/* 性能优化：移除 Framer motion，使用原生 ref 驱动 */}
+            <div 
+              ref={worksProgressBarRef}
+              className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none transition-none"
+              style={{ width: '15%' }}
             />
             <input 
               type="range" 
               min="0" 
               max="100" 
-              value={worksScrollProgress}
+              defaultValue="0"
               onChange={handleWorksSlider}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
@@ -186,7 +209,8 @@ export const StudentGallery: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 md:p-8"
+            /* 性能优化：将高耗能的 backdrop-blur-sm 替换为纯色 bg-black/95 */
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8"
             onClick={() => setSelectedImage(null)} 
           >
             <button 
@@ -207,6 +231,8 @@ export const StudentGallery: React.FC = () => {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               src={selectedImage} 
               alt="Enlarged view" 
+              loading="lazy" 
+              decoding="async" // 核心优化：异步解码弹窗图片
               className="max-w-full max-h-full object-contain shadow-2xl rounded-sm"
               onClick={(e) => e.stopPropagation()} 
             />
