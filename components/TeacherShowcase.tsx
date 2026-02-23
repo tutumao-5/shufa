@@ -10,6 +10,9 @@ interface Teacher {
   bio: string;
 }
 
+// 提取腾讯云 COS 全局加速域名
+const COS_BASE_URL = 'https://shufa-images-1405677616.cos.ap-guangzhou.myqcloud.com/';
+
 export const TeacherShowcase: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
@@ -20,7 +23,8 @@ export const TeacherShowcase: React.FC = () => {
     {
       id: 1,
       name: '王海芬',
-      photo: `${import.meta.env.BASE_URL}images/faculty/wang-haifen-portrait.png`,
+      // 教师照片 (严格保持 .png 格式)
+      photo: `${COS_BASE_URL}images/faculty/wang-haifen-portrait.png`,
       awards: [
         '乐清市硬笔书法家协会委员',
         '乐清市书法家协会（软笔）会员',
@@ -31,8 +35,8 @@ export const TeacherShowcase: React.FC = () => {
         '吉林省第二届“德翔杯”迎新春书画大赛入展',
         '乐清市“知临杯”书法篆刻大展入展'
       ],
-      // 核心修复：将路径从 works 改为了您 GitHub 实际存在的 warks 文件夹
-      works: Array.from({ length: 5 }, (_, i) => `${import.meta.env.BASE_URL}images/faculty/warks/${i + 1}.png`),
+      // 教师作品：5张，路径 warks，严格保持 .png 格式
+      works: Array.from({ length: 5 }, (_, i) => `${COS_BASE_URL}images/faculty/warks/${i + 1}.png`),
       bio: '【教学承诺】校长亲自执教\n书法之教，贵在“懂孩子、通教育”。王老师深耕一线教学25载，专注书法教育12年，集深厚的教育学积淀与极致的耐心于一身。\n我们深信，学习书法不仅是技法的磨练，更是心理与审美的共鸣。选择一位懂教育的专业良师，将为孩子开启一段受益终身的艺术之旅。'
     }
   ]);
