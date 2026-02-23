@@ -8,19 +8,21 @@ interface GalleryItem {
 }
 
 export const StudentGallery: React.FC = () => {
-  const initialAwards: GalleryItem[] = Array.from({ length: 18 }, (_, i) => ({
+  // 根据截图2：5张获奖照片，全是 .png
+  const initialAwards: GalleryItem[] = Array.from({ length: 5 }, (_, i) => ({
     id: `award-${i + 1}`,
     title: `获奖荣誉 ${i + 1}`,
     imageUrl: `${import.meta.env.BASE_URL}images/students/awards/${i + 1}.png`
   }));
 
-  const initialWorks: GalleryItem[] = Array.from({ length: 20 }, (_, i) => {
+  // 根据截图1：6张学员作品，第4张是.png，其余是.jpg
+  const initialWorks: GalleryItem[] = Array.from({ length: 6 }, (_, i) => {
     const index = i + 1;
-    const ext = (index === 1 || index === 2) ? 'jpeg' : 'jpg';
+    const ext = index === 4 ? 'png' : 'jpg';
     return {
       id: `work-${index}`,
       title: `书法作品 ${index}`,
-      imageUrl: `${import.meta.env.BASE_URL}images/students/works/zp${index}.${ext}`
+      imageUrl: `${import.meta.env.BASE_URL}images/students/works/${index}.${ext}`
     };
   });
 
@@ -80,7 +82,7 @@ export const StudentGallery: React.FC = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 relative">
       
-      {/* ================= 左侧：获奖成绩 (Awards) ================= */}
+      {/* ================= 左侧：获奖成绩 ================= */}
       <div className="space-y-6 md:space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -91,26 +93,25 @@ export const StudentGallery: React.FC = () => {
         </div>
 
         <div className="relative group/scroll">
+          {/* 排版优化：从3行改为2行，适应5张图的数量 */}
           <div 
             ref={awardsScrollRef}
             onScroll={handleAwardsScroll}
-            className="grid grid-rows-3 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
+            className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {awards.map((award, index) => (
               <div 
                 key={award.id} 
                 onClick={() => setSelectedImage(award.imageUrl)}
-                // 开启呼吸灯背景
                 className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative bg-stone-200 animate-pulse"
               >
                 <img 
                   src={award.imageUrl} 
                   alt={award.title} 
-                  loading={index < 3 ? "eager" : "lazy"} // 确保前3张图片（第一列）优先加载
-                  fetchPriority={index < 3 ? "high" : "auto"}
+                  loading={index < 4 ? "eager" : "lazy"} 
+                  fetchPriority={index < 4 ? "high" : "auto"}
                   decoding="async" 
-                  // 加载完成后平滑渐显并取消骨架屏
                   onLoad={(e) => {
                     e.currentTarget.classList.remove('opacity-0');
                     e.currentTarget.parentElement?.classList.remove('animate-pulse');
@@ -144,7 +145,7 @@ export const StudentGallery: React.FC = () => {
         </div>
       </div>
 
-      {/* ================= 右侧：书法成果作品 (Works) ================= */}
+      {/* ================= 右侧：书法成果作品 ================= */}
       <div className="space-y-6 md:space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -165,16 +166,14 @@ export const StudentGallery: React.FC = () => {
               <div 
                 key={work.id} 
                 onClick={() => setSelectedImage(work.imageUrl)}
-                // 开启呼吸灯背景
                 className="w-32 md:w-40 shrink-0 aspect-[3/4] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/work cursor-pointer snap-start relative bg-stone-200 animate-pulse"
               >
                 <img 
                   src={work.imageUrl} 
                   alt={work.title} 
-                  loading={index < 2 ? "eager" : "lazy"} // 确保前2张图片（第一列）优先加载
-                  fetchPriority={index < 2 ? "high" : "auto"}
+                  loading={index < 4 ? "eager" : "lazy"} 
+                  fetchPriority={index < 4 ? "high" : "auto"}
                   decoding="async" 
-                  // 加载完成后平滑渐显并取消骨架屏
                   onLoad={(e) => {
                     e.currentTarget.classList.remove('opacity-0');
                     e.currentTarget.parentElement?.classList.remove('animate-pulse');
@@ -208,7 +207,7 @@ export const StudentGallery: React.FC = () => {
         </div>
       </div>
 
-      {/* ================= 图片放大全屏弹窗 ================= */}
+      {/* ================= 放大弹窗 ================= */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
