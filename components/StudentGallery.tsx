@@ -54,8 +54,8 @@ export const StudentGallery: React.FC = () => {
   return (
     <div className="relative max-w-7xl mx-auto">
       
-      {/* ================= 艺术化分类选项卡 ================= */}
-      <div className="flex flex-wrap justify-center gap-4 md:gap-12 mb-12 md:mb-16 border-b border-stone-200/60 pb-2">
+      {/* ================= 艺术化分类选项卡 (支持下滑吸顶) ================= */}
+      <div className="sticky top-[60px] md:top-[76px] z-40 bg-white/95 backdrop-blur-md pt-4 pb-2 mb-8 md:mb-16 border-b border-stone-200/60 flex flex-wrap justify-center gap-4 md:gap-12 transition-all">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -74,7 +74,7 @@ export const StudentGallery: React.FC = () => {
             )}
           </button>
         ))}
-      </div>
+      </div>>
 
       {/* ================= 展馆风格画框网格 ================= */}
       <motion.div
