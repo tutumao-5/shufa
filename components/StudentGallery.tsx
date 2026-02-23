@@ -114,10 +114,9 @@ export const StudentGallery: React.FC = () => {
             </div>
 
             {/* 底部：作品信息与朱砂印章 */}
-            <div className="mt-4 flex justify-between items-end border-t border-stone-200/60 pt-3">
+            <div className="mt-4 flex justify-between items-center border-t border-stone-200/60 pt-3">
               <div className="flex flex-col">
                 <span className="text-sm md:text-base font-serif text-ink-black font-bold tracking-widest">{item.title}</span>
-                <span className="text-[10px] text-stone-500 tracking-[0.2em] mt-1">彬文少年 · 学员</span>
               </div>
               {/* 模拟朱文印章 */}
               <div className="w-7 h-7 border-2 border-[#C3362B] text-[#C3362B] flex items-center justify-center text-[12px] font-bold serif-font transform -rotate-3 opacity-85 shrink-0 select-none">
