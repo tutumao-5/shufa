@@ -74,7 +74,7 @@ export const StudentGallery: React.FC = () => {
             )}
           </button>
         ))}
-      </div>>
+      </div>
 
       {/* ================= 展馆风格画框网格 ================= */}
       <motion.div
