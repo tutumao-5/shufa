@@ -15,7 +15,7 @@ export const StudentGallery: React.FC = () => {
     imageUrl: `${import.meta.env.BASE_URL}images/students/awards/${i + 1}.png`
   }));
 
-  // 2. 书法应用 (新增：5张，匹配您的 1.1.jpg ~ 1.5.jpg)
+  // 2. 书法应用 (5张，匹配 1.1.jpg ~ 1.5.jpg)
   const initialApplications: GalleryItem[] = Array.from({ length: 5 }, (_, i) => ({
     id: `app-${i + 1}`,
     title: `书法应用 ${i + 1}`,
@@ -39,125 +39,32 @@ export const StudentGallery: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 relative">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16 relative">
       
       {/* ================= 左侧栏：包含获奖成绩 & 书法应用 ================= */}
-      <div className="flex flex-col gap-12 md:gap-20">
+      <div className="lg:col-span-7 flex flex-col gap-12 md:gap-16">
         
         {/* --- 1. 获奖成绩 --- */}
-        <div className="space-y-6 md:space-y-8">
-          <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center justify-between mb-6">
             <div className="space-y-1">
               <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">获奖成绩</h3>
               <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Student Awards</p>
             </div>
-            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动浏览 / 点击放大</span>
+            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">点击放大欣赏</span>
           </div>
 
-          <div className="relative group/scroll">
-            <div 
-              className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {awards.map((award, index) => (
-                <div 
-                  key={award.id} 
-                  onClick={() => setSelectedImage(award.imageUrl)}
-                  className="w-36 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative bg-stone-200 animate-pulse"
-                >
-                  <img 
-                    src={award.imageUrl} 
-                    alt={award.title} 
-                    loading={index < 4 ? "eager" : "lazy"} 
-                    fetchPriority={index < 4 ? "high" : "auto"}
-                    decoding="async" 
-                    onLoad={(e) => {
-                      e.currentTarget.classList.remove('opacity-0');
-                      e.currentTarget.parentElement?.classList.remove('animate-pulse');
-                    }}
-                    className="w-full h-full object-cover group-hover/award:scale-105 transition-all duration-700 opacity-0 relative z-10" 
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
-                     <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
-                       点击放大
-                     </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* --- 2. 书法应用 --- */}
-        <div className="space-y-6 md:space-y-8">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法应用</h3>
-              <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Practical Applications</p>
-            </div>
-            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动浏览 / 点击放大</span>
-          </div>
-
-          <div className="relative group/scroll">
-            <div 
-              className="grid grid-rows-1 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {applications.map((app, index) => (
-                <div 
-                  key={app.id} 
-                  onClick={() => setSelectedImage(app.imageUrl)}
-                  className="w-40 md:w-56 shrink-0 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer snap-start relative bg-stone-200 animate-pulse"
-                >
-                  <img 
-                    src={app.imageUrl} 
-                    alt={app.title} 
-                    loading={index < 2 ? "eager" : "lazy"} 
-                    fetchPriority={index < 2 ? "high" : "auto"}
-                    decoding="async" 
-                    onLoad={(e) => {
-                      e.currentTarget.classList.remove('opacity-0');
-                      e.currentTarget.parentElement?.classList.remove('animate-pulse');
-                    }}
-                    className="w-full h-full object-cover group-hover/award:scale-105 transition-all duration-700 opacity-0 relative z-10" 
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
-                     <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
-                       点击放大
-                     </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* ================= 右侧栏：书法成果作品 ================= */}
-      <div className="space-y-6 md:space-y-8">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法成果作品</h3>
-            <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Calligraphy Works</p>
-          </div>
-          <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动浏览 / 点击放大</span>
-        </div>
-
-        <div className="relative group/scroll">
-          <div 
-            className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {works.map((work, index) => (
+          {/* 优化为响应式网格布局，消除横向滚动 */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+            {awards.map((award, index) => (
               <div 
-                key={work.id} 
-                onClick={() => setSelectedImage(work.imageUrl)}
-                className="w-32 md:w-40 shrink-0 aspect-[3/4] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/work cursor-pointer snap-start relative bg-stone-200 animate-pulse"
+                key={award.id} 
+                onClick={() => setSelectedImage(award.imageUrl)}
+                className="w-full aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer relative bg-stone-200 animate-pulse"
               >
                 <img 
-                  src={work.imageUrl} 
-                  alt={work.title} 
+                  src={award.imageUrl} 
+                  alt={award.title} 
                   loading={index < 4 ? "eager" : "lazy"} 
                   fetchPriority={index < 4 ? "high" : "auto"}
                   decoding="async" 
@@ -165,16 +72,97 @@ export const StudentGallery: React.FC = () => {
                     e.currentTarget.classList.remove('opacity-0');
                     e.currentTarget.parentElement?.classList.remove('animate-pulse');
                   }}
-                  className="w-full h-full object-cover group-hover/work:scale-105 transition-all duration-700 opacity-0 relative z-10" 
+                  className="w-full h-full object-cover group-hover/award:scale-105 transition-all duration-700 opacity-0 relative z-10" 
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
-                   <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">
+                <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
+                   <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
                      点击放大
                    </span>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+
+        {/* --- 2. 书法应用 --- */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="space-y-1">
+              <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法应用</h3>
+              <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Practical Applications</p>
+            </div>
+            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">点击放大欣赏</span>
+          </div>
+
+          {/* 优化为响应式网格布局，消除横向滚动 */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+            {applications.map((app, index) => (
+              <div 
+                key={app.id} 
+                onClick={() => setSelectedImage(app.imageUrl)}
+                className="w-full aspect-[4/3] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/award cursor-pointer relative bg-stone-200 animate-pulse"
+              >
+                <img 
+                  src={app.imageUrl} 
+                  alt={app.title} 
+                  loading={index < 3 ? "eager" : "lazy"} 
+                  fetchPriority={index < 3 ? "high" : "auto"}
+                  decoding="async" 
+                  onLoad={(e) => {
+                    e.currentTarget.classList.remove('opacity-0');
+                    e.currentTarget.parentElement?.classList.remove('animate-pulse');
+                  }}
+                  className="w-full h-full object-cover group-hover/award:scale-105 transition-all duration-700 opacity-0 relative z-10" 
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover/award:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
+                   <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/award:opacity-100 transition-opacity shadow-sm">
+                     点击放大
+                   </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      {/* ================= 右侧栏：书法成果作品 ================= */}
+      <div className="lg:col-span-5">
+        <div className="flex items-center justify-between mb-6">
+          <div className="space-y-1">
+            <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法成果作品</h3>
+            <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Calligraphy Works</p>
+          </div>
+          <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">点击放大欣赏</span>
+        </div>
+
+        {/* 竖版图片同样采用网格瀑布流式排版 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3 md:gap-4">
+          {works.map((work, index) => (
+            <div 
+              key={work.id} 
+              onClick={() => setSelectedImage(work.imageUrl)}
+              className="w-full aspect-[3/4] rounded-xl overflow-hidden shadow-sm border-2 md:border-4 border-white group/work cursor-pointer relative bg-stone-200 animate-pulse"
+            >
+              <img 
+                src={work.imageUrl} 
+                alt={work.title} 
+                loading={index < 4 ? "eager" : "lazy"} 
+                fetchPriority={index < 4 ? "high" : "auto"}
+                decoding="async" 
+                onLoad={(e) => {
+                  e.currentTarget.classList.remove('opacity-0');
+                  e.currentTarget.parentElement?.classList.remove('animate-pulse');
+                }}
+                className="w-full h-full object-cover group-hover/work:scale-105 transition-all duration-700 opacity-0 relative z-10" 
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover/work:bg-black/10 transition-colors flex items-center justify-center pointer-events-none z-20">
+                 <span className="bg-white/90 px-3 py-1.5 rounded-full text-[10px] font-bold opacity-0 group-hover/work:opacity-100 transition-opacity shadow-sm">
+                   点击放大
+                 </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
