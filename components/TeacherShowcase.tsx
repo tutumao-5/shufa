@@ -31,7 +31,8 @@ export const TeacherShowcase: React.FC = () => {
         '吉林省第二届“德翔杯”迎新春书画大赛入展',
         '乐清市“知临杯”书法篆刻大展入展'
       ],
-      works: Array.from({ length: 16 }, (_, i) => `${import.meta.env.BASE_URL}images/faculty/works/work-${i + 1}.png`),
+      // 根据您的要求，教师作品数量精简为 5 张 (1.png ~ 5.png)
+      works: Array.from({ length: 5 }, (_, i) => `${import.meta.env.BASE_URL}images/faculty/works/${i + 1}.png`),
       bio: '【教学承诺】校长亲自执教\n书法之教，贵在“懂孩子、通教育”。王老师深耕一线教学25载，专注书法教育12年，集深厚的教育学积淀与极致的耐心于一身。\n我们深信，学习书法不仅是技法的磨练，更是心理与审美的共鸣。选择一位懂教育的专业良师，将为孩子开启一段受益终身的艺术之旅。'
     }
   ]);
@@ -75,10 +76,8 @@ export const TeacherShowcase: React.FC = () => {
           <div className="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-sm border border-stone-100 hover:shadow-xl transition-shadow duration-700">
             <div className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
               
-              {/* Photo Section */}
               <div className="lg:w-2/5 relative overflow-hidden group/photo">
                 <div 
-                  // 优化1：加入 bg-stone-200 animate-pulse 开启呼吸灯骨架屏效果
                   className="aspect-[4/5] lg:aspect-auto lg:h-full bg-stone-200 animate-pulse relative cursor-pointer"
                   onClick={() => teacher.photo ? setSelectedImage(teacher.photo) : null}
                 >
@@ -86,10 +85,9 @@ export const TeacherShowcase: React.FC = () => {
                     <img 
                       src={teacher.photo} 
                       alt={teacher.name} 
-                      loading={index === 0 ? "eager" : "lazy"} // 首位教师立该加载
-                      fetchPriority={index === 0 ? "high" : "auto"} // 提升网络请求优先级
+                      loading="eager"
+                      fetchPriority="high"
                       decoding="async" 
-                      // 优化2：图片加载完成时，移除透明度为0的类，同时移除父级的呼吸灯效果，实现平滑渐显
                       onLoad={(e) => {
                         e.currentTarget.classList.remove('opacity-0');
                         e.currentTarget.parentElement?.classList.remove('animate-pulse');
@@ -114,11 +112,9 @@ export const TeacherShowcase: React.FC = () => {
                 </div>
               </div>
 
-              {/* Content Section */}
               <div className="lg:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-white overflow-hidden">
                 <div className="space-y-10">
                   
-                  {/* Bio */}
                   <div className="relative">
                     <div className="absolute -top-4 -left-4 text-6xl font-serif text-stone-100 select-none">“</div>
                     <div className="w-full text-stone-600 leading-loose text-base md:text-lg italic serif-font relative z-10 whitespace-pre-line">
@@ -126,7 +122,6 @@ export const TeacherShowcase: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Awards */}
                   <div className="space-y-4">
                     <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
                       <span className="w-8 h-px bg-vermilion/30"></span>
@@ -144,7 +139,6 @@ export const TeacherShowcase: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Portfolio */}
                   <div className="space-y-6">
                     <div className="flex items-center justify-between pr-4">
                       <h4 className="text-xs md:text-sm font-black tracking-[0.2em] text-ink-black uppercase flex items-center gap-3">
@@ -165,14 +159,13 @@ export const TeacherShowcase: React.FC = () => {
                           <div 
                             key={i} 
                             onClick={() => work ? setSelectedImage(work) : null}
-                            // 同样为作品网格开启呼吸灯骨架屏
                             className={`w-32 md:w-40 shrink-0 aspect-square rounded-xl overflow-hidden shadow-sm group/work bg-stone-200 animate-pulse border border-stone-100 relative snap-start ${work ? 'cursor-pointer' : ''}`}
                           >
                             {work && (
                               <img 
                                 src={work} 
                                 alt={`Work ${i+1}`} 
-                                loading="lazy" 
+                                loading="eager" 
                                 decoding="async" 
                                 onLoad={(e) => {
                                   e.currentTarget.classList.remove('opacity-0');
