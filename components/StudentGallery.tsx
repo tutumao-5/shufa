@@ -7,29 +7,32 @@ interface GalleryItem {
   imageUrl: string;
 }
 
+// 提取腾讯云 COS 全局加速域名
+const COS_BASE_URL = 'https://shufa-images-1405677616.cos.ap-guangzhou.myqcloud.com/';
+
 export const StudentGallery: React.FC = () => {
-  // 1. 获奖成绩 (5张)
+  // 1. 获奖成绩 (5张，严格保持 .png 格式)
   const initialAwards: GalleryItem[] = Array.from({ length: 5 }, (_, i) => ({
     id: `award-${i + 1}`,
     title: `获奖荣誉 ${i + 1}`,
-    imageUrl: `${import.meta.env.BASE_URL}images/students/awards/${i + 1}.png`
+    imageUrl: `${COS_BASE_URL}images/students/awards/${i + 1}.png`
   }));
 
-  // 2. 书法应用 (5张，匹配 1.1.jpg ~ 1.5.jpg)
+  // 2. 书法应用 (5张，匹配 1.1.jpg ~ 1.5.jpg，严格保持 .jpg 格式)
   const initialApplications: GalleryItem[] = Array.from({ length: 5 }, (_, i) => ({
     id: `app-${i + 1}`,
     title: `书法应用 ${i + 1}`,
-    imageUrl: `${import.meta.env.BASE_URL}images/students/applications/1.${i + 1}.jpg`
+    imageUrl: `${COS_BASE_URL}images/students/applications/1.${i + 1}.jpg`
   }));
 
-  // 3. 书法成果作品 (6张)
+  // 3. 书法成果作品 (6张，严格匹配：第4张为.png，其余为.jpg)
   const initialWorks: GalleryItem[] = Array.from({ length: 6 }, (_, i) => {
     const index = i + 1;
     const ext = index === 4 ? 'png' : 'jpg';
     return {
       id: `work-${index}`,
       title: `书法作品 ${index}`,
-      imageUrl: `${import.meta.env.BASE_URL}images/students/works/${index}.${ext}`
+      imageUrl: `${COS_BASE_URL}images/students/works/${index}.${ext}`
     };
   });
 
@@ -54,7 +57,6 @@ export const StudentGallery: React.FC = () => {
             <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">点击放大欣赏</span>
           </div>
 
-          {/* 优化为响应式网格布局，消除横向滚动 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
             {awards.map((award, index) => (
               <div 
@@ -94,7 +96,6 @@ export const StudentGallery: React.FC = () => {
             <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">点击放大欣赏</span>
           </div>
 
-          {/* 优化为响应式网格布局，消除横向滚动 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
             {applications.map((app, index) => (
               <div 
@@ -136,7 +137,6 @@ export const StudentGallery: React.FC = () => {
           <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">点击放大欣赏</span>
         </div>
 
-        {/* 竖版图片同样采用网格瀑布流式排版 */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3 md:gap-4">
           {works.map((work, index) => (
             <div 
