@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface GalleryItem {
@@ -38,6 +38,10 @@ export const StudentGallery: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'works' | 'awards' | 'apps'>('works');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+  // 新增：用于控制吸顶状态的 State 和 Ref
+  const [isSticky, setIsSticky] = useState(false);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { id: 'works', label: '书法成果', subtitle: 'Calligraphy Works' },
@@ -45,35 +49,90 @@ export const StudentGallery: React.FC = () => {
     { id: 'apps', label: '实用书写', subtitle: 'Practical Apps' }
   ];
 
+  // 新增：监听滚动事件，精确控制吸顶
+  useEffect(() => {
+    const handleScroll = () => {
+      if (galleryRef.current) {
+        const rect = galleryRef.current.getBoundingClientRect();
+        // 动态计算导航栏高度：电脑端约72px，手机端约56px
+        const navHeight = window.innerWidth >= 768 ? 72 : 56;
+        
+        // 当画廊模块顶部接触到导航栏，且画廊底部还没离开屏幕时，触发吸顶
+        if (rect.top <= navHeight && rect.bottom >= navHeight + 100) {
+          setIsSticky(true);
+        } else {
+          setIsSticky(false);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // 初始化检测
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const getActiveItems = () => {
     if (activeTab === 'works') return initialWorks;
     if (activeTab === 'awards') return initialAwards;
     return initialApplications;
   };
 
+  // 切换 Tab 时，如果在吸顶状态，自动滚动回图片顶部
+  const handleTabClick = (tabId: 'works' | 'awards' | 'apps') => {
+    setActiveTab(tabId);
+    if (isSticky && galleryRef.current) {
+      const navHeight = window.innerWidth >= 768 ? 72 : 56;
+      window.scrollTo({
+        top: galleryRef.current.offsetTop - navHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <div className="relative max-w-7xl mx-auto">
+    <div className="relative max-w-7xl mx-auto" ref={galleryRef}>
       
-      {/* ================= 艺术化分类选项卡 (支持下滑吸顶) ================= */}
-      <div className="sticky top-[60px] md:top-[76px] z-40 bg-white/95 backdrop-blur-md pt-4 pb-2 mb-8 md:mb-16 border-b border-stone-200/60 flex flex-wrap justify-center gap-4 md:gap-12 transition-all">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`pb-4 flex flex-col items-center relative transition-colors duration-500 ${
-              activeTab === tab.id ? 'text-ink-black' : 'text-stone-400 hover:text-stone-600'
-            }`}
-          >
-            <span className="text-xl md:text-3xl font-black serif-font tracking-widest">{tab.label}</span>
-            <span className="text-[9px] md:text-[10px] tracking-[0.3em] uppercase mt-2 font-bold">{tab.subtitle}</span>
-            {activeTab === tab.id && (
-              <motion.div 
-                layoutId="activeTabBorder" 
-                className="absolute -bottom-[1px] left-0 right-0 h-0.5 bg-vermilion" 
-              />
-            )}
-          </button>
-        ))}
+      {/* ================= 占位符 ================= */}
+      {/* 为了防止 fixed 脱离文档流后导致的下方图片突然跳动，设置动态占位高度 */}
+      <div className={`${isSticky ? 'h-[80px] md:h-[100px]' : 'h-0'} transition-all`} />
+
+      {/* ================= 艺术化分类选项卡 (动态 Fixed 吸顶) ================= */}
+      <div className={`transition-all duration-300 z-40 ${
+        isSticky 
+          ? 'fixed top-[56px] md:top-[72px] left-0 w-full bg-[#F9F8F3]/95 backdrop-blur-md shadow-md py-3 md:py-4 border-b border-[#E0DACE]' 
+          : 'mb-12 md:mb-16 border-b border-stone-200/60 pb-2 bg-transparent relative'
+      }`}>
+        <div className="flex flex-wrap justify-center gap-6 md:gap-16 max-w-7xl mx-auto px-4">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab.id as any)}
+              className={`flex flex-col items-center relative transition-colors duration-500 ${
+                activeTab === tab.id ? 'text-ink-black' : 'text-stone-400 hover:text-stone-600'
+              } ${isSticky ? 'pb-2' : 'pb-4'}`}
+            >
+              <span className={`font-black serif-font tracking-widest transition-all ${
+                isSticky ? 'text-lg md:text-2xl' : 'text-xl md:text-3xl'
+              }`}>
+                {tab.label}
+              </span>
+              
+              {/* 吸顶状态下，手机端隐藏英文，节省宝贵的屏幕高度 */}
+              <span className={`text-[9px] md:text-[10px] tracking-[0.3em] uppercase mt-1 md:mt-2 font-bold transition-all ${
+                isSticky ? 'hidden md:block' : 'block'
+              }`}>
+                {tab.subtitle}
+              </span>
+
+              {activeTab === tab.id && (
+                <motion.div 
+                  layoutId="activeTabBorder" 
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-vermilion" 
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ================= 展馆风格画框网格 ================= */}
@@ -88,7 +147,6 @@ export const StudentGallery: React.FC = () => {
           <div
             key={item.id}
             onClick={() => setSelectedImage(item.imageUrl)}
-            // 外层：模拟古典画框和米黄色卡纸
             className="group/work cursor-pointer transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl bg-[#F9F8F3] p-4 md:p-5 border border-[#E0DACE] shadow-md flex flex-col"
           >
             {/* 内层：留白与作品区 */}
@@ -134,7 +192,6 @@ export const StudentGallery: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            // 背景改为带模糊效果的暖灰/墨色调，更加柔和
             className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/90 backdrop-blur-md p-4 md:p-8"
             onClick={() => setSelectedImage(null)} 
           >
