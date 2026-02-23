@@ -143,7 +143,6 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      {/* 核心修复点：将移动端菜单移出 nav 标签的层级之外。这样它就不会被 nav 在下滑时产生的 backdrop-filter 影响定位基准，从而完美保持全屏高度展示 */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-[60] bg-paper-white flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300 touch-none">
           <button 
@@ -336,12 +335,16 @@ const App: React.FC = () => {
       <section id="contact" className="py-20 md:py-32 bg-white relative">
         <div className="container mx-auto px-6 md:px-8">
           <div className="bg-paper-white rounded-[2.5rem] md:rounded-[5rem] overflow-hidden shadow-2xl border border-stone-100 flex flex-col lg:flex-row">
-            <div className="lg:w-1/2 p-8 md:p-24 bg-ink-black text-white relative">
+            
+            {/* 左侧：深色联系信息区 */}
+            <div className="lg:w-1/2 p-8 md:p-16 lg:p-24 bg-ink-black text-white relative">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col h-full justify-center">
                 <h2 className="text-3xl md:text-6xl font-black serif-font mb-6 md:mb-12 leading-tight">让改变<br />从今天开始</h2>
                 <p className="text-stone-400 text-sm md:text-xl mb-8 md:mb-16 leading-relaxed md:leading-loose">每一位伟大的书法家，都曾有过笨拙的起笔。我们在这里，陪伴孩子写好人生的每一个字。</p>
-                <div className="space-y-6 md:space-y-12">
+                
+                <div className="space-y-6 md:space-y-10">
+                  {/* 地址 */}
                   <div className="flex gap-4 md:gap-8">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/10 flex items-center justify-center text-vermilion shrink-0">📍</div>
                     <div>
@@ -349,18 +352,42 @@ const App: React.FC = () => {
                       <p className="text-stone-400 text-[10px] md:text-sm leading-relaxed">虹桥校区：三村梅隆路66号<br />蒲岐校区：定安小区1幢B门</p>
                     </div>
                   </div>
+                  
+                  {/* 电话 */}
                   <div className="flex gap-4 md:gap-8">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/10 flex items-center justify-center text-lotus-green shrink-0">📞</div>
                     <div>
                       <h4 className="font-bold text-sm md:text-xl mb-1 md:mb-2 serif-font">咨询专线</h4>
-                      <p className="text-lg md:text-3xl font-black text-white">189 8972 7075</p>
+                      <p className="text-lg md:text-3xl font-black text-white tracking-wider">189 8972 7075</p>
                     </div>
                   </div>
+
+                  {/* 新增：微信二维码区域 */}
+                  <div className="flex gap-4 md:gap-8 pt-6 md:pt-8 border-t border-white/10">
+                    {/* 二维码白底容器 */}
+                    <div className="w-24 h-24 md:w-28 md:h-28 bg-white p-2 rounded-xl md:rounded-2xl shrink-0 shadow-lg flex items-center justify-center">
+                      <img 
+                        src="https://shufa-images-1405677616.cos.ap-guangzhou.myqcloud.com/images/faculty/erweima.png" 
+                        alt="王老师微信二维码" 
+                        className="w-full h-full object-cover rounded-lg" 
+                      />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <h4 className="font-bold text-sm md:text-xl mb-1 md:mb-2 serif-font">微信在线咨询</h4>
+                      <p className="text-stone-400 text-[10px] md:text-sm leading-relaxed mb-3">扫码添加王老师微信<br/>获取专属试听福利</p>
+                      <div className="inline-flex items-center gap-2 text-vermilion text-[10px] md:text-xs font-bold tracking-widest">
+                        <span className="w-1.5 h-1.5 rounded-full bg-vermilion animate-pulse"></span>
+                        校长亲自答疑
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
             
-            <div className="lg:w-1/2 p-8 md:p-24 bg-white flex flex-col justify-center">
+            {/* 右侧：报名表单区 */}
+            <div className="lg:w-1/2 p-8 md:p-16 lg:p-24 bg-white flex flex-col justify-center">
               {isSubmitSuccess ? (
                 <div className="text-center animate-in zoom-in duration-500">
                   <div className="w-16 h-16 md:w-24 md:h-24 bg-lotus-green text-white rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-xl">
@@ -388,7 +415,7 @@ const App: React.FC = () => {
                         value={formData.name}
                         onChange={handleFormChange}
                         placeholder="您的称呼" 
-                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-2 text-sm md:text-base ${formError && !formData.name ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`} 
+                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-4 text-sm md:text-base rounded-lg ${formError && !formData.name ? 'border-vermilion/50 bg-vermilion/5' : 'border-stone-100 focus:border-vermilion focus:bg-white'}`} 
                       />
                     </div>
                     <div>
@@ -398,7 +425,7 @@ const App: React.FC = () => {
                         value={formData.phone}
                         onChange={handleFormChange}
                         placeholder="联系电话" 
-                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-2 text-sm md:text-base ${formError && (!formData.phone || !/^1[3-9]\d{9}$/.test(formData.phone)) ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`} 
+                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-4 text-sm md:text-base rounded-lg ${formError && (!formData.phone || !/^1[3-9]\d{9}$/.test(formData.phone)) ? 'border-vermilion/50 bg-vermilion/5' : 'border-stone-100 focus:border-vermilion focus:bg-white'}`} 
                       />
                     </div>
                     <div>
@@ -406,7 +433,7 @@ const App: React.FC = () => {
                         name="ageGroup"
                         value={formData.ageGroup}
                         onChange={handleFormChange}
-                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-2 appearance-none text-sm md:text-base ${formError && !formData.ageGroup ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`}
+                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-4 appearance-none text-sm md:text-base rounded-lg ${formError && !formData.ageGroup ? 'border-vermilion/50 bg-vermilion/5' : 'border-stone-100 focus:border-vermilion focus:bg-white'}`}
                       >
                         <option value="">请选择学龄段</option>
                         <option value="幼儿园">学龄段：幼儿园</option>
@@ -420,7 +447,7 @@ const App: React.FC = () => {
                         name="campus"
                         value={formData.campus}
                         onChange={handleFormChange}
-                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-2 appearance-none text-sm md:text-base ${formError && !formData.campus ? 'border-vermilion/50' : 'border-stone-100 focus:border-vermilion'}`}
+                        className={`w-full bg-stone-50 border-b-2 py-3 md:py-4 outline-none transition-colors px-4 appearance-none text-sm md:text-base rounded-lg ${formError && !formData.campus ? 'border-vermilion/50 bg-vermilion/5' : 'border-stone-100 focus:border-vermilion focus:bg-white'}`}
                       >
                         <option value="">请选择报名校区</option>
                         <option value="虹桥校区">校区选择：虹桥校区</option>
@@ -429,14 +456,14 @@ const App: React.FC = () => {
                     </div>
 
                     {formError && (
-                      <div className="p-3 md:p-4 bg-vermilion/5 border-l-4 border-vermilion text-vermilion text-xs md:text-sm font-bold">
+                      <div className="p-3 md:p-4 bg-vermilion/5 border-l-4 border-vermilion text-vermilion text-xs md:text-sm font-bold rounded-r-lg">
                         ⚠ {formError}
                       </div>
                     )}
 
                     <button 
                       type="submit"
-                      className="w-full bg-vermilion text-white py-4 md:py-6 rounded-xl md:rounded-2xl text-lg md:text-xl font-bold shadow-2xl hover:bg-ink-black transition-all transform hover:-translate-y-1"
+                      className="w-full bg-[#B22222] text-white py-4 md:py-6 rounded-xl md:rounded-2xl text-lg md:text-xl font-bold shadow-xl hover:bg-ink-black transition-all transform hover:-translate-y-1"
                     >
                       立即报名 ➔
                     </button>
@@ -469,7 +496,7 @@ const App: React.FC = () => {
                 <h5 className="font-bold mb-4 text-xs tracking-widest uppercase">关注我们</h5>
                 <ul className="space-y-3 text-stone-500 text-xs">
                   <li><a href="#" className="hover:text-white">微信公众号</a></li>
-                  <li><a href="#" className="hover:text-white">联系我们</a></li>
+                  <li><a href="#contact" className="hover:text-white">联系我们</a></li>
                 </ul>
               </div>
             </div>
