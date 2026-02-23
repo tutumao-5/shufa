@@ -11,21 +11,21 @@ interface GalleryItem {
 const COS_BASE_URL = 'https://shufa-images-1405677616.cos.ap-guangzhou.myqcloud.com/';
 
 export const StudentGallery: React.FC = () => {
-  // 1. 获奖成绩 (5张，严格保持 .png 格式)
-  const initialAwards: GalleryItem[] = Array.from({ length: 5 }, (_, i) => ({
+  // 1. 获奖成绩 (数量修改为 6 张)
+  const initialAwards: GalleryItem[] = Array.from({ length: 6 }, (_, i) => ({
     id: `award-${i + 1}`,
     title: `获奖荣誉 ${i + 1}`,
     imageUrl: `${COS_BASE_URL}images/students/awards/${i + 1}.png`
   }));
 
-  // 2. 书法应用 (5张，匹配 1.1.jpg ~ 1.5.jpg，严格保持 .jpg 格式)
-  const initialApplications: GalleryItem[] = Array.from({ length: 5 }, (_, i) => ({
+  // 2. 书法应用 (数量修改为 6 张)
+  const initialApplications: GalleryItem[] = Array.from({ length: 6 }, (_, i) => ({
     id: `app-${i + 1}`,
     title: `书法应用 ${i + 1}`,
     imageUrl: `${COS_BASE_URL}images/students/applications/1.${i + 1}.jpg`
   }));
 
-  // 3. 书法成果作品 (6张，严格匹配：第4张为.png，其余为.jpg)
+  // 3. 书法成果作品 (数量修改为 6 张，第4张为.png，其余为.jpg)
   const initialWorks: GalleryItem[] = Array.from({ length: 6 }, (_, i) => {
     const index = i + 1;
     const ext = index === 4 ? 'png' : 'jpg';
@@ -106,8 +106,8 @@ export const StudentGallery: React.FC = () => {
                 <img 
                   src={app.imageUrl} 
                   alt={app.title} 
-                  loading={index < 3 ? "eager" : "lazy"} 
-                  fetchPriority={index < 3 ? "high" : "auto"}
+                  loading={index < 4 ? "eager" : "lazy"} 
+                  fetchPriority={index < 4 ? "high" : "auto"}
                   decoding="async" 
                   onLoad={(e) => {
                     e.currentTarget.classList.remove('opacity-0');
