@@ -362,19 +362,30 @@ const App: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 新增：微信二维码区域 */}
+                  {/* 新增：微信二维码区域（支持点击放大） */}
                   <div className="flex gap-4 md:gap-8 pt-6 md:pt-8 border-t border-white/10">
-                    {/* 二维码白底容器 */}
-                    <div className="w-24 h-24 md:w-28 md:h-28 bg-white p-2 rounded-xl md:rounded-2xl shrink-0 shadow-lg flex items-center justify-center">
+                    {/* 二维码白底容器，增加 cursor-pointer 和 hover 动效 */}
+                    <div 
+                      className="w-24 h-24 md:w-28 md:h-28 bg-white p-2 rounded-xl md:rounded-2xl shrink-0 shadow-lg flex items-center justify-center cursor-pointer group relative"
+                      onClick={() => setSelectedImage('https://shufa-images-1405677616.cos.ap-guangzhou.myqcloud.com/images/faculty/erweima.png')}
+                    >
                       <img 
                         src="https://shufa-images-1405677616.cos.ap-guangzhou.myqcloud.com/images/faculty/erweima.png" 
                         alt="王老师微信二维码" 
-                        className="w-full h-full object-cover rounded-lg" 
+                        className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300" 
                       />
+                      {/* 鼠标悬浮或手机点击时的半透明遮罩提示 */}
+                      <div className="absolute inset-0 bg-black/40 rounded-xl md:rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                         <span className="text-[10px] text-white font-bold tracking-widest">点击放大</span>
+                      </div>
                     </div>
+                    
                     <div className="flex flex-col justify-center">
                       <h4 className="font-bold text-sm md:text-xl mb-1 md:mb-2 serif-font">微信在线咨询</h4>
-                      <p className="text-stone-400 text-[10px] md:text-sm leading-relaxed mb-3">扫码添加王老师微信<br/>获取专属试听福利</p>
+                      <p className="text-stone-400 text-[10px] md:text-sm leading-relaxed mb-3">
+                        <span className="text-white">点击放大，长按可识别二维码</span><br/>
+                        获取专属试听福利及排课信息
+                      </p>
                       <div className="inline-flex items-center gap-2 text-vermilion text-[10px] md:text-xs font-bold tracking-widest">
                         <span className="w-1.5 h-1.5 rounded-full bg-vermilion animate-pulse"></span>
                         校长亲自答疑
@@ -535,8 +546,10 @@ const App: React.FC = () => {
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               src={selectedImage} 
-              alt="Enlarged Logo" 
-              className="max-w-full max-h-full object-contain shadow-2xl rounded-sm"
+              alt="Enlarged Image" 
+              // 这里的 WebkitTouchCallout 属性确保在 iOS 和微信中长按可以唤起识别二维码功能
+              style={{ WebkitTouchCallout: 'default' }}
+              className="max-w-full max-h-full object-contain shadow-2xl rounded-sm pointer-events-auto"
               onClick={(e) => e.stopPropagation()} 
             />
           </motion.div>
