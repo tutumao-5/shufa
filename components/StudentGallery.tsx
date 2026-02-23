@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface GalleryItem {
@@ -37,39 +37,6 @@ export const StudentGallery: React.FC = () => {
   const [applications] = useState<GalleryItem[]>(initialApplications);
   const [works] = useState<GalleryItem[]>(initialWorks);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  
-  // 滚动进度 Ref 控制
-  const awardsScrollRef = useRef<HTMLDivElement>(null);
-  const awardsProgressBarRef = useRef<HTMLDivElement>(null);
-  
-  const applicationsScrollRef = useRef<HTMLDivElement>(null);
-  const applicationsProgressBarRef = useRef<HTMLDivElement>(null);
-
-  const worksScrollRef = useRef<HTMLDivElement>(null);
-  const worksProgressBarRef = useRef<HTMLDivElement>(null);
-
-  // --- 滚动事件处理 ---
-  const handleScroll = (scrollRef: React.RefObject<HTMLDivElement>, progressRef: React.RefObject<HTMLDivElement>) => (e: React.UIEvent<HTMLDivElement>) => {
-    const container = e.currentTarget;
-    const scrollWidth = container.scrollWidth - container.clientWidth;
-    if (scrollWidth > 0) {
-      const progress = (container.scrollLeft / scrollWidth) * 100;
-      if (progressRef.current) {
-        progressRef.current.style.width = `${Math.max(progress, 15)}%`;
-      }
-    }
-  };
-
-  const handleSlider = (scrollRef: React.RefObject<HTMLDivElement>, progressRef: React.RefObject<HTMLDivElement>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const progress = Number(e.target.value);
-    if (scrollRef.current) {
-      const scrollWidth = scrollRef.current.scrollWidth - scrollRef.current.clientWidth;
-      scrollRef.current.scrollLeft = (progress / 100) * scrollWidth;
-    }
-    if (progressRef.current) {
-      progressRef.current.style.width = `${Math.max(progress, 15)}%`;
-    }
-  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 relative">
@@ -84,13 +51,11 @@ export const StudentGallery: React.FC = () => {
               <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">获奖成绩</h3>
               <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Student Awards</p>
             </div>
-            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动进度块 / 点击放大</span>
+            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动浏览 / 点击放大</span>
           </div>
 
           <div className="relative group/scroll">
             <div 
-              ref={awardsScrollRef}
-              onScroll={handleScroll(awardsScrollRef, awardsProgressBarRef)}
               className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
@@ -120,37 +85,21 @@ export const StudentGallery: React.FC = () => {
                 </div>
               ))}
             </div>
-
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-              <div 
-                ref={awardsProgressBarRef}
-                className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none transition-none"
-                style={{ width: '15%' }}
-              />
-              <input 
-                type="range" min="0" max="100" defaultValue="0"
-                onChange={handleSlider(awardsScrollRef, awardsProgressBarRef)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
           </div>
         </div>
 
-        {/* --- 2. 书法应用 (新增) --- */}
+        {/* --- 2. 书法应用 --- */}
         <div className="space-y-6 md:space-y-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法应用</h3>
               <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Practical Applications</p>
             </div>
-            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动进度块 / 点击放大</span>
+            <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动浏览 / 点击放大</span>
           </div>
 
           <div className="relative group/scroll">
-            {/* 单行横向排版 */}
             <div 
-              ref={applicationsScrollRef}
-              onScroll={handleScroll(applicationsScrollRef, applicationsProgressBarRef)}
               className="grid grid-rows-1 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
@@ -180,19 +129,6 @@ export const StudentGallery: React.FC = () => {
                 </div>
               ))}
             </div>
-
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-              <div 
-                ref={applicationsProgressBarRef}
-                className="absolute top-0 left-0 h-full bg-lotus-green rounded-full pointer-events-none transition-none"
-                style={{ width: '15%' }}
-              />
-              <input 
-                type="range" min="0" max="100" defaultValue="0"
-                onChange={handleSlider(applicationsScrollRef, applicationsProgressBarRef)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
           </div>
         </div>
 
@@ -205,13 +141,11 @@ export const StudentGallery: React.FC = () => {
             <h3 className="text-xl md:text-3xl font-black serif-font text-ink-black">书法成果作品</h3>
             <p className="text-stone-400 text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">Calligraphy Works</p>
           </div>
-          <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动进度块 / 点击放大</span>
+          <span className="text-[10px] font-bold text-stone-300 tracking-widest uppercase">滑动浏览 / 点击放大</span>
         </div>
 
         <div className="relative group/scroll">
           <div 
-            ref={worksScrollRef}
-            onScroll={handleScroll(worksScrollRef, worksProgressBarRef)}
             className="grid grid-rows-2 grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-6 snap-x snap-mandatory transform-gpu [&::-webkit-scrollbar]:hidden"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
@@ -240,19 +174,6 @@ export const StudentGallery: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-stone-200 rounded-full mt-4">
-            <div 
-              ref={worksProgressBarRef}
-              className="absolute top-0 left-0 h-full bg-vermilion rounded-full pointer-events-none transition-none"
-              style={{ width: '15%' }}
-            />
-            <input 
-              type="range" min="0" max="100" defaultValue="0"
-              onChange={handleSlider(worksScrollRef, worksProgressBarRef)}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
           </div>
         </div>
       </div>
